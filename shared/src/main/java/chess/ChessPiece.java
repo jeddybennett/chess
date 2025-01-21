@@ -82,7 +82,7 @@ public class ChessPiece {
                 break;
         }
 
-    return calculator.pieceMoves(board, myPosition, teamColor)
+    return calculator.pieceMoves(board, myPosition, teamColor);
 
     }
 }
