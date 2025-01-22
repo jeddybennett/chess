@@ -12,8 +12,11 @@ import java.util.Objects;
 public class ChessBoard {
 
     private ChessPiece[][] squares = new ChessPiece[8][8];
-    public ChessBoard(ChessPiece[][] chessboard) {
-        this.squares = chessboard;
+    public ChessBoard(ChessPiece[][] squares) {
+        this.squares = squares;
+    }
+    public ChessBoard(){
+
     }
 
     /**
@@ -34,13 +37,7 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        if (squares[position.getRow() - 1][position.getColumn() - 1] == null){
-            return null;
-        }
-
-        else{
-            return squares[position.getRow() - 1][position.getColumn() - 1];
-        }
+       return squares[position.getRow() - 1][position.getColumn() - 1];
     }
 
     /**
@@ -53,8 +50,8 @@ public class ChessBoard {
         squares[0][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
         squares[0][1] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
         squares[0][2] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
-        squares[0][3] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
-        squares[0][4] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN);
+        squares[0][3] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN);
+        squares[0][4] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
         squares[0][5] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
         squares[0][6] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
         squares[0][7] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
@@ -67,8 +64,8 @@ public class ChessBoard {
         squares[7][0] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
         squares[7][1] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
         squares[7][2] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
-        squares[7][3] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
-        squares[7][4] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
+        squares[7][3] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
+        squares[7][4] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
         squares[7][5] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
         squares[7][6] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
         squares[7][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
@@ -84,7 +81,7 @@ public class ChessBoard {
         int row = position.getRow();
         int column = position.getColumn();
 
-        return row >= 0 && row <= 7 && column >= 0 && column <= 7;
+        return row >= 1 && row <= 8 && column >= 1 && column <= 8;
     }
 
     @Override

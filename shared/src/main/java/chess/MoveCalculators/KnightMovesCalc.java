@@ -5,7 +5,6 @@ import java.util.Collection;
 import chess.ChessBoard;
 import chess.ChessMove;
 import chess.ChessPosition;
-import chess.ChessGame;
 
 public class KnightMovesCalc implements PieceMovesCalculator{
 
@@ -24,8 +23,12 @@ public class KnightMovesCalc implements PieceMovesCalculator{
             if (!chessBoard.isOnBoard(chessBoard, newPosition)) {
                 continue;
             }
-            else {
-
+            else if (!PieceMovesCalculator.isValidMove(chessBoard, position, newPosition)){
+                continue;
+            }
+            else{
+                ChessMove new_move = new ChessMove(position, newPosition, null);
+                moves.add(new_move);
             }
         }
     return moves;
