@@ -29,7 +29,7 @@ public class PawnMovesCalc implements PieceMovesCalculator {
         ChessPiece new_piece = chessBoard.getPiece(new_position);
         if (PieceMovesCalculator.isValidMove(chessBoard, position, new_position)) {
             if (new_piece == null) {
-                if (row + direction == 7 || row + direction == 0) {
+                if (row + direction == 8 || row + direction == 0) {
                     for (ChessPiece.PieceType pieceType : EnumSet.of(ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KNIGHT,
                             ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.ROOK)) {
                         ChessMove move = new ChessMove(position, new_position, pieceType);
@@ -43,7 +43,7 @@ public class PawnMovesCalc implements PieceMovesCalculator {
             }
         }
         //2 Steps Forward
-        if (row ==1 && color == ChessGame.TeamColor.WHITE){
+        if (row == 2 && color == ChessGame.TeamColor.WHITE){
             ChessPosition new_from_start = new ChessPosition(row + 2, column);
             if(PieceMovesCalculator.isValidMove(chessBoard, position, new_from_start)){
                 ChessMove move = new ChessMove(position, new_from_start, null);
@@ -73,7 +73,7 @@ public class PawnMovesCalc implements PieceMovesCalculator {
 
         if (new_piece_1 != null && PieceMovesCalculator.isValidMove(chessBoard, position, new_position_1) ) {
             if (new_piece_1.getTeamColor() != my_piece.getTeamColor()) {
-                if (row + direction == 7 || row + direction == 0) {
+                if (row + direction == 8 || row + direction == 1) {
                     for (ChessPiece.PieceType pieceType : EnumSet.of(ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KNIGHT,
                             ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.ROOK)) {
                         ChessMove move = new ChessMove(position, new_position_1, pieceType);
@@ -90,7 +90,7 @@ public class PawnMovesCalc implements PieceMovesCalculator {
         if (new_piece_2 != null && PieceMovesCalculator.isValidMove(chessBoard, position, new_position_2)) {
 
                 if (new_piece_2.getTeamColor() != my_piece.getTeamColor()) {
-                    if (row + direction == 7 || row + direction == 0) {
+                    if (row + direction == 8 || row + direction == 1) {
                         for (ChessPiece.PieceType pieceType : EnumSet.of(ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KNIGHT,
                                 ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.ROOK)) {
                             ChessMove move = new ChessMove(position, new_position_2, pieceType);
