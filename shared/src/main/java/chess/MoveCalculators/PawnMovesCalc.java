@@ -24,6 +24,7 @@ public class PawnMovesCalc implements PieceMovesCalculator {
             direction = 1;
         }
 
+        //Single Step Forward and Promotions
         ChessPosition new_position = new ChessPosition(row + direction, column);
         ChessPiece new_piece = chessBoard.getPiece(new_position);
         if (PieceMovesCalculator.isValidMove(chessBoard, position, new_position)) {
@@ -41,15 +42,36 @@ public class PawnMovesCalc implements PieceMovesCalculator {
 
             }
         }
+        //2 Steps Forward
+        if (row ==1 && color == ChessGame.TeamColor.WHITE){
+            ChessPosition new_from_start = new ChessPosition(row + 2, column);
+            if(PieceMovesCalculator.isValidMove(chessBoard, position, new_from_start)){
+                ChessMove move = new ChessMove(position, new_from_start, null);
+                moves.add(move);
+            }
+        }
+        else if(row == 7 && color == ChessGame.TeamColor.BLACK){
+            ChessPosition new_from_start = new ChessPosition(row - 2, column);
+            if(PieceMovesCalculator.isValidMove(chessBoard, position, new_from_start)){
+                ChessMove move = new ChessMove(position, new_from_start, null);
+                moves.add(move);
+            }
+        }
 
+
+        //Pawn Capture and Promotions
         ChessPosition new_position_1 = new ChessPosition(row + direction, column + -1);
         ChessPosition new_position_2 = new ChessPosition(row + direction, column + 1);
 
-        ChessPiece new_piece_1 = chessBoard.getPiece(new_position_1);
-        ChessPiece new_piece_2 = chessBoard.getPiece(new_position_2);
+        ChessPiece new_piece_1 = null;
+        if(chessBoard.isOnBoard(chessBoard, new_position_1)){
+            new_piece_1 = chessBoard.getPiece(new_position_1);
+        }
+        ChessPiece new_piece_2 = null;
+        if (chessBoard.isOnBoard(chessBoard, new_position_2)){
+            new_piece_2 = chessBoard.getPiece(new_position_2);}
 
-        if (PieceMovesCalculator.isValidMove(chessBoard, position, new_position_1) && new_piece_1 != null) {
-
+        if (new_piece_1 != null && PieceMovesCalculator.isValidMove(chessBoard, position, new_position_1) ) {
             if (new_piece_1.getTeamColor() != my_piece.getTeamColor()) {
                 if (row + direction == 7 || row + direction == 0) {
                     for (ChessPiece.PieceType pieceType : EnumSet.of(ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KNIGHT,
@@ -65,7 +87,7 @@ public class PawnMovesCalc implements PieceMovesCalculator {
             }
         }
 
-        if (PieceMovesCalculator.isValidMove(chessBoard, position, new_position_2) && new_piece_2 != null) {
+        if (new_piece_2 != null && PieceMovesCalculator.isValidMove(chessBoard, position, new_position_2)) {
 
                 if (new_piece_2.getTeamColor() != my_piece.getTeamColor()) {
                     if (row + direction == 7 || row + direction == 0) {

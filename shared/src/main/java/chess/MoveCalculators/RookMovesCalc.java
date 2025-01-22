@@ -35,6 +35,11 @@ public class RookMovesCalc implements PieceMovesCalculator{
 
 
                 ChessPosition new_position = new ChessPosition(current_row, current_column);
+
+                if (!board.isOnBoard(board, new_position)) {
+                    break; // Stop if the position is off the board
+                }
+
                 ChessPiece other_piece = board.getPiece(new_position);
 
                 if (PieceMovesCalculator.isValidMove(board, position, new_position)) {
