@@ -46,8 +46,12 @@ public class PawnMovesCalc implements PieceMovesCalculator {
         //2 Steps Forward
         if (row == 2 && color == ChessGame.TeamColor.WHITE){
             ChessPosition new_from_start = new ChessPosition(row + 2, column);
+            ChessPosition in_front = new ChessPosition(row + 1, column);
+
             ChessPiece new_piece_white = chessBoard.getPiece(new_from_start);
-            if(PieceMovesCalculator.isValidMove(chessBoard, position, new_from_start) && new_piece_white == null){
+            ChessPiece new_piece_in_front= chessBoard.getPiece(in_front);
+
+            if(PieceMovesCalculator.isValidMove(chessBoard, position, new_from_start) && new_piece_white == null && new_piece_in_front == null){
                 ChessMove move = new ChessMove(position, new_from_start, null);
                 moves.add(move);
             }
@@ -55,7 +59,11 @@ public class PawnMovesCalc implements PieceMovesCalculator {
         if(row == 7 && color == ChessGame.TeamColor.BLACK){
             ChessPosition new_from_start = new ChessPosition(row - 2, column);
             ChessPiece new_piece_black = chessBoard.getPiece(new_from_start);
-            if(PieceMovesCalculator.isValidMove(chessBoard, position, new_from_start) && new_piece_black == null){
+
+            ChessPosition in_front = new ChessPosition(row - 1, column);
+            ChessPiece new_piece_in_front= chessBoard.getPiece(in_front);
+
+            if(PieceMovesCalculator.isValidMove(chessBoard, position, new_from_start) && new_piece_black == null && new_piece_in_front == null){
                 ChessMove move = new ChessMove(position, new_from_start, null);
                 moves.add(move);
             }

@@ -12,14 +12,13 @@ public class RookMovesCalc implements PieceMovesCalculator{
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position){
         ArrayList<ChessMove> moves = new ArrayList<>();
-
         ChessPiece my_piece = board.getPiece(position);
 
         int row = position.getRow();
         int column = position.getColumn();
 
-        int [] row_moves = {1 , -1, 0, 0};
-        int [] col_moves = {0, 0, 1, -1};
+        int [] row_moves = {0 , 0, 1, -1};
+        int [] col_moves = {1, -1, 0, 0};
 
         for (int i = 0; i < row_moves.length; i++){
             int row_move = row_moves[i];
@@ -28,7 +27,11 @@ public class RookMovesCalc implements PieceMovesCalculator{
             int current_row = row;
             int current_column = column;
 
+
+
             while(true){
+                current_row += row_move;
+                current_column += col_move;
 
                 ChessPosition new_position = new ChessPosition(current_row, current_column);
 
@@ -38,7 +41,7 @@ public class RookMovesCalc implements PieceMovesCalculator{
 
                 ChessPiece other_piece = board.getPiece(new_position);
 
-                if (PieceMovesCalculator.isValidMove(board, position, new_position)) {
+                if (PieceMovesCalculator.isValidMove(board, position, new_position)){
                     if (other_piece == null) {
                         ChessMove move = new ChessMove(position, new_position, null);
                         moves.add(move);
@@ -48,8 +51,10 @@ public class RookMovesCalc implements PieceMovesCalculator{
                         break;
                     }
                 }
-                current_row += row_move;
-                current_column += col_move;
+                else{
+                    break;
+                }
+
             }
 
         }
