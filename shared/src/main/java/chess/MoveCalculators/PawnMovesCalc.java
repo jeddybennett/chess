@@ -99,6 +99,7 @@ public class PawnMovesCalc implements PieceMovesCalculator {
 
                     }else{
                         ChessMove move = new ChessMove(position, new_position_2, null);
+                        moves.add(move);
                     }
                 }
 
