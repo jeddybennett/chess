@@ -28,15 +28,13 @@ public class BishopMovesCalc implements PieceMovesCalculator{
             int current_column = column;
 
             while(chessBoard.isOnBoard(chessBoard, new ChessPosition(current_row, current_column))){
-                current_row += row_move;
-                current_column += column_move;
 
                 ChessPosition new_position = new ChessPosition(current_row, current_column);
 
                 if (!chessBoard.isOnBoard(chessBoard, new_position)) {
                     break; // Stop if the position is off the board
                 }
-                
+
                 ChessPiece new_piece = chessBoard.getPiece(new_position);
 
                 if(PieceMovesCalculator.isValidMove(chessBoard, position, new_position)){
@@ -50,6 +48,8 @@ public class BishopMovesCalc implements PieceMovesCalculator{
                         break;
                     }
                 }
+                current_row += row_move;
+                current_column += column_move;
             }
         }
 

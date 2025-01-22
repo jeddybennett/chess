@@ -52,7 +52,7 @@ public class PawnMovesCalc implements PieceMovesCalculator {
                 moves.add(move);
             }
         }
-        else if(row == 7 && color == ChessGame.TeamColor.BLACK){
+        if(row == 7 && color == ChessGame.TeamColor.BLACK){
             ChessPosition new_from_start = new ChessPosition(row - 2, column);
             ChessPiece new_piece_black = chessBoard.getPiece(new_from_start);
             if(PieceMovesCalculator.isValidMove(chessBoard, position, new_from_start) && new_piece_black == null){

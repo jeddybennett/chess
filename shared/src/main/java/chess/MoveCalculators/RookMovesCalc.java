@@ -28,11 +28,7 @@ public class RookMovesCalc implements PieceMovesCalculator{
             int current_row = row;
             int current_column = column;
 
-            while(board.isOnBoard(board, new ChessPosition(current_row, current_column))){
-                current_row += row_move;
-                current_column += col_move;
-
-
+            while(true){
 
                 ChessPosition new_position = new ChessPosition(current_row, current_column);
 
@@ -52,7 +48,10 @@ public class RookMovesCalc implements PieceMovesCalculator{
                         break;
                     }
                 }
+                current_row += row_move;
+                current_column += col_move;
             }
+
         }
 
         return moves;
