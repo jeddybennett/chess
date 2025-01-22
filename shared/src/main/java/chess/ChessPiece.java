@@ -1,8 +1,9 @@
 package chess;
 
 import chess.MoveCalculators.*;
-import java.util.ArrayList;
+
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -15,9 +16,31 @@ public class ChessPiece {
     private final ChessGame.TeamColor teamColor;
     private final PieceType pieceType;
 
-    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+    public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
         this.teamColor = pieceColor;
         this.pieceType = type;
+    }
+
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "teamColor=" + teamColor +
+                ", pieceType=" + pieceType +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) o;
+        return teamColor == that.teamColor && pieceType == that.pieceType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(teamColor, pieceType);
     }
 
     /**
@@ -54,35 +77,35 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        PieceMovesCalculator calculator;
+        PieceMovesCalculator calculator = null;
 
         switch (pieceType) {
             case KING:
-                calculator = KingMovesCalc();
+                calculator = new KingMovesCalc();
                 break;
 
             case QUEEN:
-                calculator = QueenMovesCalc();
+                calculator = new QueenMovesCalc();
                 break;
 
             case BISHOP:
-                calculator = BishopMovesCalc();
+                calculator = new BishopMovesCalc();
                 break;
 
             case KNIGHT:
-                calculator = KnightMovesCalc();
+                calculator = new KnightMovesCalc();
                 break;
 
             case ROOK:
-                calculator = RookMovesCalc();
+                calculator = new RookMovesCalc();
                 break;
 
             case PAWN:
-                calculator = PawnMovesCalc();
+                calculator = new PawnMovesCalc();
                 break;
         }
 
-    return calculator.pieceMoves(board, myPosition, teamColor);
+    return calculator.pieceMoves(board, myPosition);
 
     }
 }

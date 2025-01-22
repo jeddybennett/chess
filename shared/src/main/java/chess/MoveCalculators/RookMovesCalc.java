@@ -1,4 +1,17 @@
-package chess;
+package chess.MoveCalculators;
 
-public class RookMovesCalc {
+import java.util.ArrayList;
+import java.util.Collection;
+import chess.ChessBoard;
+import chess.ChessMove;
+import chess.ChessPosition;
+import chess.ChessGame;
+
+public class RookMovesCalc implements PieceMovesCalculator{
+    @Override
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position){
+        ArrayList<ChessMove> moves = new ArrayList<>();
+
+        return moves;
+    }
 }
