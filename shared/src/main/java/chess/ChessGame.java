@@ -16,7 +16,8 @@ public class ChessGame {
 
     public ChessGame() {
         setTeamTurn(TeamColor.WHITE);
-        board.resetBoard();
+        this.board = new ChessBoard();
+        this.board.resetBoard();
     }
 
     /**
@@ -53,8 +54,10 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece startPiece = board.getPiece(startPosition);
         if (startPiece == null) {
-            return null;
+            return new ArrayList<>();
         }
+
+        Collection <ChessMove> moves = startPiece.pieceMoves(board, startPosition);
         return startPiece.pieceMoves(board, startPosition);
     }
 
@@ -65,7 +68,22 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
+        ChessPiece myPiece = board.getPiece(start);
+
+        if (myPiece == null){
+            throw new InvalidMoveException("No Piece located here");
+        }
+
+        if(myPiece.getTeamColor() != getTeamTurn()){
+            throw new InvalidMoveException("It is " + getTeamTurn() + "'s"+  " turn");
+
+        }
+
+
+
+
     }
 
     /**
@@ -75,7 +93,6 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -85,7 +102,10 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if(!isInCheck(teamColor)){
+            return false;
+        }
+
     }
 
     /**
@@ -96,6 +116,12 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
+        if (isInCheck(teamColor)){
+            return false;
+        }
+        else{
+
+        }
 
     }
 
@@ -116,4 +142,33 @@ public class ChessGame {
     public ChessBoard getBoard() {
         return this.board;
     }
+
+    private ChessPosition findKing(TeamColor team, ChessBoard board){
+        int size = 8;
+        for (int row = 1; row <=size; row ++){
+            for (int col = 1; col <=size; col++){
+                ChessPosition kingPosition = new ChessPosition(row, col);
+                ChessPiece myPiece = board.getPiece(kingPosition);
+                if(myPiece.getPieceType() == ChessPiece.PieceType.KING && myPiece.getTeamColor() == team){
+                    return kingPosition;
+                }
+
+            }
+        }
+        return null;
+    }
+
+    private Boolean leaveKingInCheck(TeamColor team, ChessBoard board){
+        ChessPosition kingPosition = findKing(team, board);
+
+        int size = 8;
+        for(int row = 1; row <= size; row ++){
+            for(int col = 1; col<= size; col++){
+                ChessPosition newPosition = new ChessPosition(row, col);
+                ChessPiece enemyPiece = board.getPiece(newPosition);
+                
+            }
+        }
+    }
+
 }
