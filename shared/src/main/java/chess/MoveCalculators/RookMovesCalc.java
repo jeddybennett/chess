@@ -27,8 +27,6 @@ public class RookMovesCalc implements PieceMovesCalculator{
             int current_row = row;
             int current_column = column;
 
-
-
             while(true){
                 current_row += row_move;
                 current_column += col_move;
