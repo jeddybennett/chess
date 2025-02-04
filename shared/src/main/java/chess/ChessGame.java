@@ -44,6 +44,10 @@ public class ChessGame {
         BLACK
     }
 
+    public void movePiece(ChessPosition start, ChessPosition end){
+        ChessPiece myPiece = board.getPiece(start);
+    }
+
     /**
      * Gets a valid moves for a piece at the given location
      *
@@ -58,6 +62,12 @@ public class ChessGame {
         }
 
         Collection <ChessMove> moves = startPiece.pieceMoves(board, startPosition);
+        Collection <ChessMove> validMoves = new ArrayList<>();
+        for(ChessMove move: moves){
+            ChessBoard newBoard = board.copyBoard();
+
+
+        }
         return startPiece.pieceMoves(board, startPosition);
     }
 
@@ -166,9 +176,17 @@ public class ChessGame {
             for(int col = 1; col<= size; col++){
                 ChessPosition newPosition = new ChessPosition(row, col);
                 ChessPiece enemyPiece = board.getPiece(newPosition);
-                
+                if(enemyPiece != null && enemyPiece.getTeamColor() != team){
+                    Collection<ChessMove>enemyMoves = enemyPiece.pieceMoves(board, newPosition);
+                    for(ChessMove move: enemyMoves){
+                        if(move.getEndPosition() == kingPosition){
+                            return true;
+                        }
+                    }
+                }
             }
         }
+        return false;
     }
 
 }

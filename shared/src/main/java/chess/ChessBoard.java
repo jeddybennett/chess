@@ -84,6 +84,18 @@ public class ChessBoard {
         return row >= 1 && row <= 8 && column >= 1 && column <= 8;
     }
 
+    public ChessBoard copyBoard(){
+        ChessPiece[][] copied = new ChessPiece[8][8];
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                copied[i][j] = this.squares[i][j];
+            }
+        }
+        return new ChessBoard(copied);
+    }
+
+
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
