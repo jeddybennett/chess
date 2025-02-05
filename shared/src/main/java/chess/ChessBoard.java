@@ -14,6 +14,7 @@ public class ChessBoard {
     private ChessPiece[][] squares = new ChessPiece[8][8];
     public ChessBoard(ChessPiece[][] squares) {
         this.squares = squares;
+
     }
     public ChessBoard(){
 
@@ -37,7 +38,14 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-       return squares[position.getRow() - 1][position.getColumn() - 1];
+        return squares[position.getRow() - 1][position.getColumn() - 1];
+    }
+
+    public Boolean isOnBoard(ChessPosition position){
+        int row = position.getRow();
+        int col = position.getColumn();
+
+        return row >=1 && row <=8 && col>=1 && col<=8;
     }
 
     /**
@@ -45,8 +53,6 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-
-        //add white pieces
         squares[0][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
         squares[0][1] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
         squares[0][2] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
@@ -56,11 +62,10 @@ public class ChessBoard {
         squares[0][6] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
         squares[0][7] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
 
-        for (int i = 0; i < 8; i++) {
+        for(int i = 0; i<8; i++){
             squares[1][i] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
         }
 
-        //add black pieces
         squares[7][0] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
         squares[7][1] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
         squares[7][2] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
@@ -70,31 +75,28 @@ public class ChessBoard {
         squares[7][6] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
         squares[7][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
 
-        for (int i = 0; i < 8; i++) {
+        for(int i = 0; i<8; i++){
             squares[6][i] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
         }
 
-
-
     }
-    public Boolean isOnBoard(ChessBoard board, ChessPosition position){
+
+    public Boolean isOnBoard(chess.ChessBoard board, ChessPosition position){
         int row = position.getRow();
         int column = position.getColumn();
 
         return row >= 1 && row <= 8 && column >= 1 && column <= 8;
     }
 
-    public ChessBoard copyBoard(){
+    public chess.ChessBoard copyBoard(){
         ChessPiece[][] copied = new ChessPiece[8][8];
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
                 copied[i][j] = this.squares[i][j];
             }
         }
-        return new ChessBoard(copied);
+        return new chess.ChessBoard(copied);
     }
-
-
 
     @Override
     public boolean equals(Object o) {

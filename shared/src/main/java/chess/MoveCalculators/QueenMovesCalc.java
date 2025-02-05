@@ -1,11 +1,7 @@
 package chess.MoveCalculators;
-
-import java.util.ArrayList;
+import chess.*;
 import java.util.Collection;
-import chess.ChessBoard;
-import chess.ChessMove;
-import chess.ChessPosition;
-import chess.ChessGame;
+import java.util.ArrayList;
 
 public class QueenMovesCalc implements PieceMovesCalculator{
 
@@ -13,17 +9,14 @@ public class QueenMovesCalc implements PieceMovesCalculator{
     private final BishopMovesCalc bishopMovesCalc = new BishopMovesCalc();
 
     @Override
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position){
-
-        ArrayList<ChessMove> moves = new ArrayList<>();
-
-        Collection<ChessMove> rookMoves = rookMovesCalc.pieceMoves(board, position);
-        Collection<ChessMove> bishopMoves = bishopMovesCalc.pieceMoves(board, position);
+    public Collection<ChessMove>pieceMoves(ChessBoard board, ChessPosition position){
+        ArrayList<ChessMove>moves = new ArrayList<>();
+        Collection<ChessMove>rookMoves = rookMovesCalc.pieceMoves(board, position);
+        Collection<ChessMove>bishopMoves = bishopMovesCalc.pieceMoves(board, position);
 
         moves.addAll(rookMoves);
         moves.addAll(bishopMoves);
 
         return moves;
     }
-
 }
