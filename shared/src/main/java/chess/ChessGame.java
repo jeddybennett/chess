@@ -61,10 +61,24 @@ public class ChessGame {
         Collection <ChessMove> moves = startPiece.pieceMoves(board, startPosition);
         for(ChessMove move: moves){
             ChessBoard newBoard = board.copyBoard();
+            ChessPiece.PieceType promotion = move.getPromotionPiece();
+            ChessPiece promotion_piece = new ChessPiece(getTeamTurn(), promotion);
+            ChessPosition endPosition = move.getEndPosition();
 
+            if(promotion != null){
+                newBoard.addPiece(startPosition, null);
+                newBoard.addPiece(endPosition, promotion_piece);
+            }
+            else{
+                newBoard.addPiece(startPosition, null);
+                newBoard.addPiece(endPosition, startPiece);
+            }
 
+            if(!isInCheck(team_color)){
+                validMoves.add(move);
+            }
         }
-        return startPiece.pieceMoves(board, startPosition);
+        return validMoves;
     }
 
     /**
