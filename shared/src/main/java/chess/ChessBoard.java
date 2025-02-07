@@ -92,7 +92,13 @@ public class ChessBoard {
         ChessPiece[][] copied = new ChessPiece[8][8];
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
-                copied[i][j] = this.squares[i][j];
+                ChessPiece copiedPiece = this.squares[i][j];
+                if(copiedPiece != null){
+                    copied[i][j] = new ChessPiece(copiedPiece.getTeamColor(), copiedPiece.getPieceType());
+                }
+                else{
+                    copied[i][j] = null;
+                }
             }
         }
         return new chess.ChessBoard(copied);
