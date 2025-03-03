@@ -28,8 +28,10 @@ public class GameHandler {
     }
 
     public Object joinGameHandler(Request Req, Response Res) throws ResponseException, DataAccessException{
+        JsonObject jsonObject = new Gson().fromJson(Req.body(), JsonObject.class);
+        jsonObject.addProperty("authToken", Req.headers("authorization"));
         try{
-            JoinGameRequest joinGameRequest = new JoinGameRequest(Req.headers("authorization"), Req.body());
+            JoinGameRequest joinGameRequest = new Gson().fromJson(jsonObject, JoinGameRequest.class);
             gameService.joinGame(joinGameRequest);
             return new Gson().toJson(null);
         }
@@ -40,7 +42,9 @@ public class GameHandler {
 
     public Object listGameHandler(Request Req, Response Res) throws ResponseException, DataAccessException{
         try{
-            
+            ListGameRequest listGameRequest = new ListGameRequest(Req.headers("authorization"));
+            ListGameResult listGameResult = gameService.ListGames(listGameRequest);
+            return new Gson().toJson(listGameResult);
         }
         catch (ResponseException exception){
             throw throw_error(exception, Res);
