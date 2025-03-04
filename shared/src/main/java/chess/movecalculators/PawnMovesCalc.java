@@ -1,4 +1,4 @@
-package chess.moveCalculators;
+package chess.movecalculators;
 
 import chess.*;
 import java.util.Collection;
@@ -57,10 +57,10 @@ public class PawnMovesCalc implements PieceMovesCalculator {
             ChessPosition forwardTwoBlack = new ChessPosition(row - 2, col);
             ChessPosition forwardOneBlack = new ChessPosition(row - 1, col);
 
-            ChessPiece two_black = board.getPiece(forwardTwoBlack);
-            ChessPiece one_black = board.getPiece(forwardOneBlack);
+            ChessPiece twoBlack = board.getPiece(forwardTwoBlack);
+            ChessPiece oneBlack = board.getPiece(forwardOneBlack);
 
-            if (two_black == null && one_black == null) {
+            if (twoBlack == null && oneBlack == null) {
                 ChessMove move = new ChessMove(position, forwardTwoBlack, null);
                 moves.add(move);
             }
