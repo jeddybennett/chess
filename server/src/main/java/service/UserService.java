@@ -3,14 +3,10 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
-
-import java.util.Objects;
 import java.util.UUID;
 
 import exception.ResponseException;
 import model.*;
-import exception.*;
-import org.eclipse.jetty.server.Authentication;
 
 public class UserService {
     private final UserDAO userDAO;
