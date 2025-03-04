@@ -13,72 +13,81 @@ import exception.*;
 import org.eclipse.jetty.server.Authentication;
 
 public class UserService {
-    final private UserDAO userData;
-    final private AuthDAO authData;
+    private final UserDAO userDAO;
+    private final AuthDAO authDAO;
 
-    public UserService(UserDAO userData, AuthDAO authData) {
-        this.userData = userData;
-        this.authData = authData;
+    public UserService(UserDAO userDAO, AuthDAO authDAO) {
+        this.userDAO = userDAO;
+        this.authDAO = authDAO;
     }
 
     public static String generateToken() {
         return UUID.randomUUID().toString();
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException, ResponseException {
-        String email = registerRequest.email();
-        String password = registerRequest.passWord();
-        String username = registerRequest.userName();
+    public RegisterResult register(RegisterRequest registerRequest) throws ResponseException {
 
-        UserData current_user = userData.getUser(username);
+        String email = registerRequest.email();
+        String password = registerRequest.password();
+        String username = registerRequest.username();
+
+
+        if (email == null || password == null || username == null) {
+            throw new ResponseException(400, "Error: bad request");
+        }
+
         try {
-            if (email == null || password == null || username == null) {
-                throw new ResponseException(400, "Error: bad request");
-            } else if (current_user.username() != null) {
+            UserData current_user = userDAO.getUser(username);
+            if (current_user != null) {
                 throw new ResponseException(403, "Error: already taken");
             }
 
-            userData.createUser(new UserData(username, password, email));
+            userDAO.createUser(new UserData(username, password, email));
             String authToken = generateToken();
+            authDAO.createAuth(new AuthData(authToken,username));
+
             return new RegisterResult(authToken, username);
 
-        } catch (DataAccessException exception) {
+        }
+        catch (DataAccessException exception) {
             throw new ResponseException(500, "Error:" + exception.getMessage());
         }
 
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws DataAccessException, ResponseException {
-        String username = loginRequest.userName();
-        String password = loginRequest.passWord();
-
-        UserData current_user = userData.getUser(username);
+    public LoginResult login(LoginRequest loginRequest) throws ResponseException {
 
         try {
-            if (current_user.username() == null) {
-                throw new ResponseException(500, "Error: username doesn't exist");
-            } else if (!Objects.equals(password, current_user.password())) {
+            String username = loginRequest.username();
+            String password = loginRequest.password();
+            UserData current_user = userDAO.getUser(username);
+
+            if (current_user == null || !current_user.password().equals(password)) {
                 throw new ResponseException(401, "Error: unauthorized");
-            } else {
-                String authToken = generateToken();
-                authData.createAuth(new AuthData(authToken, username));
-                return new LoginResult(authToken, username);
             }
-        } catch (DataAccessException exception) {
+
+            String authToken = generateToken();
+            authDAO.createAuth(new AuthData(authToken, username));
+            return new LoginResult(authToken, username);
+
+        }
+        catch (DataAccessException exception) {
             throw new ResponseException(500, "Error:" + exception.getMessage());
         }
     }
 
-    public void logout(LogoutRequest logoutRequest) throws DataAccessException, ResponseException {
+    public void logout(LogoutRequest logoutRequest) throws ResponseException {
         String authToken = logoutRequest.authToken();
         try {
-            if (authToken == null) {
+            AuthData authData = authDAO.getAuth(authToken);
+            if (authData == null) {
                 throw new ResponseException(401, "Error: unauthorized");
             }
 
-            authData.deleteAuth(authToken);
+            authDAO.deleteAuth(authToken);
 
-        } catch (DataAccessException exception) {
+        }
+        catch (DataAccessException exception) {
             throw new ResponseException(500, "Error:" + exception.getMessage());
         }
     }

@@ -16,8 +16,10 @@ public class GameHandler {
     }
 
     public Object creatGameHandler(Request Req, Response Res) throws ResponseException, DataAccessException {
+        JsonObject jsonObject = new Gson().fromJson(Req.body(), JsonObject.class);
+        jsonObject.addProperty("authToken", Req.headers("authorization"));
+        CreateGameRequest createGameRequest = new Gson().fromJson(jsonObject, CreateGameRequest.class);
         try{
-            CreateGameRequest createGameRequest = new CreateGameRequest(Req.headers("authorization"), Req.body());
             CreateGameResult createGameResult = gameService.createGame(createGameRequest);
             return new Gson().toJson(createGameResult);
         }

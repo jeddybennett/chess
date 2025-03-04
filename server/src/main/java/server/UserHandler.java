@@ -16,9 +16,8 @@ public class UserHandler {
     }
 
     public Object registerHandler(Request req, Response Res) throws ResponseException, DataAccessException {
-
+        RegisterRequest registerRequest = new Gson().fromJson(req.body(), RegisterRequest.class);
         try{
-            RegisterRequest registerRequest = new Gson().fromJson(req.body(), RegisterRequest.class);
             RegisterResult registerResult = userService.register(registerRequest);
             return new Gson().toJson(registerResult);
         }
@@ -28,20 +27,19 @@ public class UserHandler {
     }
 
     public Object loginHandler(Request req, Response Res) throws ResponseException, DataAccessException{
+        LoginRequest loginRequest = new Gson().fromJson(req.body(), LoginRequest.class);
         try{
-            LoginRequest loginRequest = new Gson().fromJson(req.body(), LoginRequest.class);
             LoginResult loginResult = userService.login(loginRequest);
             return new Gson().toJson(loginResult);
         }
         catch(ResponseException exception){
             throw throw_error(exception, Res);
-
         }
     }
 
     public Object logoutHandler(Request req, Response Res) throws ResponseException, DataAccessException{
+        LogoutRequest logoutRequest = new LogoutRequest(req.headers("authorization"));
         try{
-            LogoutRequest logoutRequest = new LogoutRequest(req.headers("authorization"));
             userService.logout(logoutRequest);
             return new Gson().toJson(null);
         }

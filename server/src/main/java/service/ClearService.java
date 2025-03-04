@@ -5,7 +5,6 @@ import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 import exception.ResponseException;
-import org.eclipse.jetty.server.Authentication;
 
 public class ClearService {
     private final GameDAO gameDAO;

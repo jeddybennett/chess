@@ -1,4 +1,4 @@
 package model;
 
-public record LoginRequest (String userName, String passWord){
+public record LoginRequest (String username, String password){
 }
