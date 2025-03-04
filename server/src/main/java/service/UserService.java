@@ -33,8 +33,8 @@ public class UserService {
         }
 
         try {
-            UserData current_user = userDAO.getUser(username);
-            if (current_user != null) {
+            UserData currentUser = userDAO.getUser(username);
+            if (currentUser != null) {
                 throw new ResponseException(403, "Error: already taken");
             }
 
@@ -56,9 +56,9 @@ public class UserService {
         try {
             String username = loginRequest.username();
             String password = loginRequest.password();
-            UserData current_user = userDAO.getUser(username);
+            UserData currentUser = userDAO.getUser(username);
 
-            if (current_user == null || !current_user.password().equals(password)) {
+            if (currentUser == null || !currentUser.password().equals(password)) {
                 throw new ResponseException(401, "Error: unauthorized");
             }
 

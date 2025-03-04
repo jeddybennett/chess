@@ -42,7 +42,7 @@ public class UserServiceTests {
         RegisterRequest registerRequest2 = new RegisterRequest("duplicated",
                 "password", "newemail#@gmail.com");
         ResponseException thrownException = assertThrows(ResponseException.class, () -> userService.register(registerRequest2));
-        assertEquals(403, thrownException.StatusCode());
+        assertEquals(403, thrownException.statusCode());
         assertTrue(thrownException.getMessage().contains("already taken"));
     }
 
@@ -67,7 +67,7 @@ public class UserServiceTests {
                 ResponseException.class,
                 () -> userService.login(loginRequest)
         );
-        assertEquals(401, thrownException.StatusCode());
+        assertEquals(401, thrownException.statusCode());
         assertTrue(thrownException.getMessage().contains("unauthorized"));
     }
 
@@ -94,7 +94,7 @@ public class UserServiceTests {
                 ResponseException.class,
                 () -> userService.logout(logoutRequest)
         );
-        assertEquals(401, thrownException.StatusCode());
+        assertEquals(401, thrownException.statusCode());
         assertTrue(thrownException.getMessage().contains("unauthorized"));
 
     }

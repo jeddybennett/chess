@@ -6,9 +6,9 @@ import spark.Response;
 
 public class ExceptionHandler {
 
-    public void exceptionHandler(ResponseException exception, Request Req, Response Res){
-        int error_code = exception.StatusCode();
-        Res.status(error_code);
-        Res.body(exception.toJson());
+    public void exceptionHandler(ResponseException exception, Request req, Response res){
+        int errorCode = exception.statusCode();
+        res.status(errorCode);
+        res.body(exception.toJson());
     }
 }

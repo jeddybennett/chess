@@ -14,14 +14,14 @@ public class ClearHandler {
         this.clearService = clearService;
     }
 
-    public Object clearHandler(Request Req, Response Res) throws ResponseException{
+    public Object clearHandler(Request req, Response res) throws ResponseException{
         try{
             clearService.clear();
             return new Gson().toJson(null);
         }
         catch(ResponseException exception){
-            int error_code = exception.StatusCode();
-            Res.status(error_code);
+            int errorCode = exception.statusCode();
+            res.status(errorCode);
             throw exception;
         }
     }

@@ -52,7 +52,7 @@ public class GameServiceTests {
         ResponseException thrownException = assertThrows(
                 ResponseException.class, () -> gameService.createGame(createGameRequest)
         );
-        assertEquals(400, thrownException.StatusCode());
+        assertEquals(400, thrownException.statusCode());
         assertTrue(thrownException.getMessage().contains("bad request"));
     }
 
@@ -85,7 +85,7 @@ public class GameServiceTests {
         ResponseException thrownException = assertThrows(
                 ResponseException.class, () -> gameService.joinGame(badRequest)
                 );
-        assertEquals(403, thrownException.StatusCode());
+        assertEquals(403, thrownException.statusCode());
         assertTrue(thrownException.getMessage().contains("already taken"));
     }
 
@@ -98,7 +98,7 @@ public class GameServiceTests {
         gameService.createGame(new CreateGameRequest("ChessGame3", authToken));
 
         ListGameRequest listGameRequest = new ListGameRequest(authToken);
-        ListGameResult listGameResult = gameService.ListGames(listGameRequest);
+        ListGameResult listGameResult = gameService.listGames(listGameRequest);
         assertNotNull(listGameResult);
         assertFalse(listGameResult.games().isEmpty());
         assertEquals(3, listGameResult.games().size());
@@ -110,9 +110,9 @@ public class GameServiceTests {
         String invalidToken = "notAValidToken";
         ListGameRequest listGameRequest = new ListGameRequest(invalidToken);
         ResponseException thrownException = assertThrows(
-                ResponseException.class, () -> gameService.ListGames(listGameRequest)
+                ResponseException.class, () -> gameService.listGames(listGameRequest)
         );
-        assertEquals(401, thrownException.StatusCode());
+        assertEquals(401, thrownException.statusCode());
         assertTrue(thrownException.getMessage().contains("unauthorized"));
     }
 }

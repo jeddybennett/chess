@@ -4,25 +4,25 @@ import model.AuthData;
 
 public class MemoryAuthDAO implements AuthDAO{
 
-    final private HashMap<String, AuthData> auth_info = new HashMap<>();
+    final private HashMap<String, AuthData> authInfo = new HashMap<>();
 
     @Override
     public void createAuth(AuthData authData) throws DataAccessException {
-        auth_info.put(authData.authToken(), authData);
+        authInfo.put(authData.authToken(), authData);
     }
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
-        return auth_info.get(authToken);
+        return authInfo.get(authToken);
     }
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
-        auth_info.remove(authToken);
+        authInfo.remove(authToken);
     }
 
     @Override
     public void clearAuth(){
-        auth_info.clear();
+        authInfo.clear();
     }
 }

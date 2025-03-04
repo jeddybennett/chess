@@ -1,9 +1,8 @@
-package chess.MoveCalculators;
+package chess.moveCalculators;
 import chess.*;
 import java.util.Collection;
 import java.util.ArrayList;
-
-public class BishopMovesCalc implements PieceMovesCalculator {
+public class RookMovesCalc implements PieceMovesCalculator {
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
         ArrayList<ChessMove> moves = new ArrayList<>();
@@ -12,21 +11,21 @@ public class BishopMovesCalc implements PieceMovesCalculator {
         int row = position.getRow();
         int col = position.getColumn();
 
-        int[] row_moves = {1, 1, -1, -1};
-        int[] col_moves = {1, -1, 1, -1};
+        int[] rowMoves = {1, -1, 0, 0};
+        int[] colMoves = {0, 0, 1, -1};
 
-        for (int i = 0; i < row_moves.length; i++){
-            int current_row = row;
-            int current_col = col;
+        for (int i = 0; i < rowMoves.length; i++){
+            int currentRow = row;
+            int currentCol = col;
 
-            int row_move = row_moves[i];
-            int col_move = col_moves[i];
+            int rowMove = rowMoves[i];
+            int colMove = colMoves[i];
 
             while(true){
-                current_row += row_move;
-                current_col += col_move;
+                currentRow += rowMove;
+                currentCol += colMove;
 
-                ChessPosition newPosition = new ChessPosition(current_row, current_col);
+                ChessPosition newPosition = new ChessPosition(currentRow, currentCol);
                 if(PieceMovesCalculator.isValidMove(board, position, newPosition)){
                     ChessPiece otherPiece = board.getPiece(newPosition);
                     if(otherPiece != null){
@@ -47,4 +46,3 @@ public class BishopMovesCalc implements PieceMovesCalculator {
         return moves;
     }
 }
-

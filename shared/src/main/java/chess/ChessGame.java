@@ -11,7 +11,7 @@ import java.util.Collection;
  */
 public class ChessGame {
 
-    private TeamColor team_color;
+    private TeamColor teamColor;
     private ChessBoard board;
 
     public ChessGame() {
@@ -24,7 +24,7 @@ public class ChessGame {
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        return this.team_color;
+        return this.teamColor;
     }
 
     /**
@@ -33,7 +33,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        this.team_color = team;
+        this.teamColor = team;
     }
 
     /**
@@ -67,9 +67,9 @@ public class ChessGame {
 
             if(promotion != null){
 
-                ChessPiece promotion_piece = new ChessPiece(getTeamTurn(), promotion);
+                ChessPiece promotionPiece = new ChessPiece(getTeamTurn(), promotion);
                 newBoard.addPiece(startPosition, null);
-                newBoard.addPiece(endPosition, promotion_piece);
+                newBoard.addPiece(endPosition, promotionPiece);
 
             }
             else{
@@ -160,9 +160,6 @@ public class ChessGame {
             for(int col = 1; col <= 8; col++){
                 ChessPosition newPosition = new ChessPosition(row, col);
                 ChessPiece enemyPiece = board.getPiece(newPosition);
-                if(enemyPiece != null){
-                }
-
                 if(enemyPiece != null && enemyPiece.getTeamColor() != teamColor){
                     Collection<ChessMove>enemyMoves = enemyPiece.pieceMoves(board, newPosition);
                     for(ChessMove move: enemyMoves){

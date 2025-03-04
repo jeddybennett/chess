@@ -1,4 +1,4 @@
-package chess.MoveCalculators;
+package chess.moveCalculators;
 import chess.*;
 import java.util.Collection;
 import java.util.ArrayList;
@@ -12,14 +12,14 @@ public class KnightMovesCalc implements PieceMovesCalculator {
         int row = position.getRow();
         int col = position.getColumn();
 
-        int[] row_moves = {2,2,1,1,-2,-2,-1,-1};
-        int[] col_moves = {1,-1,2,-2,1,-1,2,-2};
+        int[] rowMoves = {2,2,1,1,-2,-2,-1,-1};
+        int[] colMoves = {1,-1,2,-2,1,-1,2,-2};
 
-        for (int i = 0; i < row_moves.length; i++) {
-            int updated_row = row + row_moves[i];
-            int updated_col = col + col_moves[i];
+        for (int i = 0; i < rowMoves.length; i++) {
+            int updatedRow = row + rowMoves[i];
+            int updatedCol = col + colMoves[i];
 
-            ChessPosition newPosition = new ChessPosition(updated_row, updated_col);
+            ChessPosition newPosition = new ChessPosition(updatedRow, updatedCol);
             if(PieceMovesCalculator.isValidMove(board,position, newPosition)){
                 ChessMove move = new ChessMove(position, newPosition, null);
                 moves.add(move);

@@ -16,7 +16,7 @@ public class GameService {
         this.authDAO = authDAO;
     }
 
-    public ListGameResult ListGames(ListGameRequest listGameRequest) throws DataAccessException, ResponseException{
+    public ListGameResult listGames(ListGameRequest listGameRequest) throws DataAccessException, ResponseException{
         String authToken = listGameRequest.authToken();
         AuthData authData = authDAO.getAuth(authToken);
         try {
