@@ -3,10 +3,13 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
+
+import java.sql.SQLException;
 import java.util.UUID;
 
 import exception.ResponseException;
 import model.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class UserService {
     private final UserDAO userDAO;
@@ -45,7 +48,7 @@ public class UserService {
             return new RegisterResult(authToken, username);
 
         }
-        catch (DataAccessException exception) {
+        catch (DataAccessException|SQLException exception) {
             throw new ResponseException(500, "Error:" + exception.getMessage());
         }
 
@@ -58,7 +61,7 @@ public class UserService {
             String password = loginRequest.password();
             UserData currentUser = userDAO.getUser(username);
 
-            if (currentUser == null || !currentUser.password().equals(password)) {
+            if (currentUser == null || BCrypt.checkpw(password, currentUser.password())){
                 throw new ResponseException(401, "Error: unauthorized");
             }
 

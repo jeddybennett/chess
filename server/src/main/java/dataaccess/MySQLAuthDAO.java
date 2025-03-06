@@ -28,8 +28,14 @@ public class MySQLAuthDAO implements AuthDAO{
     }
 
     private final String[] createStatements = {
-
-    }
+            """
+            CREATE TABLE IF NOT EXISTS authData(
+            'authToken' String NOT NULL
+            'username' varchar(256) NOT NULL
+            PRIMARY KEY ('authToken')
+            )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+    };
 
     private void congfigureDatabase() throws ResponseException, DataAccessException {
         DatabaseManager.createDatabase();
@@ -41,7 +47,7 @@ public class MySQLAuthDAO implements AuthDAO{
             }
         }
         catch (SQLException e) {
-            throw new ResponseException(500, String.format("Unable to configure database: %s" e.getMessage()));
+            throw new ResponseException(500, String.format("Unable to configure database: %s", e.getMessage()));
         }
     }
 }

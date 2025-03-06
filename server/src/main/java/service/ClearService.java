@@ -6,6 +6,8 @@ import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 import exception.ResponseException;
 
+import java.sql.SQLException;
+
 public class ClearService {
     private final GameDAO gameDAO;
     private final AuthDAO authDAO;
@@ -24,7 +26,7 @@ public class ClearService {
             authDAO.clearAuth();
             userDAO.clearUser();
         }
-        catch(DataAccessException exception){
+        catch(DataAccessException | SQLException exception){
             throw new ResponseException(500, "Error: " + exception.getMessage());
         }
     }
