@@ -10,19 +10,21 @@ import spark.*;
 
 public class Server {
 
-    public int run(int desiredPort) {
+    public int run(int desiredPort) throws ResponseException, DataAccessException {
         Spark.port(desiredPort);
+        GameDAO gameDAO;
+        UserDAO userDAO;
+        AuthDAO authDAO;
 
         Spark.staticFiles.location("web");
-
-        GameDAO gameDAO = new MemoryGameDAO();
-        UserDAO userDAO = null;
         try {
+            gameDAO = new MySQLGameDAO();
             userDAO = new MySQLUserDAO();
-        } catch (DataAccessException | ResponseException e) {
-            throw new RuntimeException(e);
+            authDAO = new MySQLAuthDAO();
         }
-        AuthDAO authDAO = new MemoryAuthDAO();
+        catch(DataAccessException e){
+            throw new ResponseException(500, e.getMessage());
+        }
 
         ClearService clearService = new ClearService(gameDAO, authDAO, userDAO);
         GameService gameService = new GameService(gameDAO, authDAO);

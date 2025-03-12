@@ -12,5 +12,5 @@ public interface GameDAO {
     int createGame(String gameName) throws DataAccessException, ResponseException, SQLException;
     GameData getGame(int gameID) throws DataAccessException, SQLException, ResponseException;
     void updateGame(int oldGameID, GameData gameData) throws DataAccessException, SQLException, ResponseException;
-    void clearGame() throws DataAccessException;
+    void clearGame() throws DataAccessException, SQLException, ResponseException;
 }

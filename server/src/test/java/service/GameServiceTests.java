@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.module.ResolutionException;
+import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,10 +20,17 @@ public class GameServiceTests {
     private String authToken;
 
     @BeforeEach
-    void initialize() throws ResponseException{
-        UserDAO userDAO = new MemoryUserDAO();
-        gameDAO = new MemoryGameDAO();
-        AuthDAO authDAO = new MemoryAuthDAO();
+    void initialize() throws ResponseException {
+        UserDAO userDAO;
+        AuthDAO authDAO;
+        try {
+            gameDAO = new MySQLGameDAO();
+            userDAO = new MySQLUserDAO();
+            authDAO = new MySQLAuthDAO();
+        }
+        catch (DataAccessException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
 
         UserService userService = new UserService(userDAO, authDAO);
         gameService = new GameService(gameDAO, authDAO);
@@ -35,7 +43,7 @@ public class GameServiceTests {
 
     @Test
     @DisplayName("Create Game - Positive")
-    void createGamePositive() throws ResponseException, DataAccessException {
+    void createGamePositive() throws ResponseException, DataAccessException, SQLException {
         CreateGameRequest createGameRequest = new CreateGameRequest("MyChessGame", authToken);
         CreateGameResult createGameResult = gameService.createGame(createGameRequest);
 
@@ -58,7 +66,7 @@ public class GameServiceTests {
 
     @Test
     @DisplayName("Join Game - Positive")
-    void joinGamePositive() throws ResponseException, DataAccessException {
+    void joinGamePositive() throws ResponseException, DataAccessException, SQLException {
         CreateGameRequest createGameRequest = new CreateGameRequest("MyChessGame", authToken);
         CreateGameResult createGameResult = gameService.createGame(createGameRequest);
 
@@ -73,7 +81,7 @@ public class GameServiceTests {
 
     @Test
     @DisplayName("Join Game - Negative (Already Taken)")
-    void joinGameNegative() throws ResponseException, DataAccessException{
+    void joinGameNegative() throws ResponseException, DataAccessException, SQLException {
         CreateGameRequest createGameRequest = new CreateGameRequest("MyChessGame", authToken);
         CreateGameResult createGameResult = gameService.createGame(createGameRequest);
 
@@ -92,7 +100,7 @@ public class GameServiceTests {
 
     @Test
     @DisplayName("List Games - Positive")
-    void listGamesPositive() throws ResponseException, DataAccessException {
+    void listGamesPositive() throws ResponseException, DataAccessException, SQLException {
         gameService.createGame(new CreateGameRequest("ChessGame1", authToken));
         gameService.createGame(new CreateGameRequest("ChessGame2", authToken));
         gameService.createGame(new CreateGameRequest("ChessGame3", authToken));

@@ -10,7 +10,7 @@ import static java.sql.Types.NULL;
 public class MySQLAuthDAO implements AuthDAO{
 
     public MySQLAuthDAO() throws ResponseException, DataAccessException {
-        congfigureDatabase();
+        configureDatabase();
     }
 
     public void createAuth(AuthData authData) throws DataAccessException, ResponseException, SQLException {
@@ -40,7 +40,8 @@ public class MySQLAuthDAO implements AuthDAO{
     }
 
     public void deleteAuth(String authToken) throws DataAccessException, ResponseException, SQLException {
-
+        String Statement = "DELETE from authData where authToken = ?";
+        executeUpdate(Statement);
     }
 
     public void clearAuth() throws DataAccessException, ResponseException, SQLException {
@@ -51,14 +52,14 @@ public class MySQLAuthDAO implements AuthDAO{
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS authData(
-            authToken String NOT NULL,
+            authToken VARCHAR(256) NOT NULL,
             username VARCHAR(256) NOT NULL,
             PRIMARY KEY (authToken)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };
 
-    private void congfigureDatabase() throws ResponseException, DataAccessException {
+    private void configureDatabase() throws ResponseException, DataAccessException {
         DatabaseManager.createDatabase();
         try(var conn = DatabaseManager.getConnection()){
             for(var statement : createStatements){

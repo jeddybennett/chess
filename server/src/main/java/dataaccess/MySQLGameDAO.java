@@ -19,37 +19,39 @@ public class MySQLGameDAO implements GameDAO{
     }
 
     public Collection<GameData> listGames() throws DataAccessException, SQLException, ResponseException {
-        String statement = "SELECT gameID, whiteUsername, blackUsername, gameName, chessGame from gameData where gameID = ?";
         Collection<GameData> gameList = new ArrayList<>();
-        try(var conn = DatabaseManager.getConnection();
-        var game = conn.prepareStatement(statement);
-        var returnedGame = game.executeQuery()){
-            while(returnedGame.next()){
-                int gameID = returnedGame.getInt("gameID");
-                String whiteUsername = returnedGame.getString("whiteUsername");
-                String blackUsername = returnedGame.getString("blackUsername");
-                String gameName = returnedGame.getString("gameName");
-                String gameJson = returnedGame.getString("gameJson");
-                ChessGame chessGame = new Gson().fromJson(gameJson, ChessGame.class);
-                GameData gameData = new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame);
-                gameList.add(gameData);
+        try(var conn = DatabaseManager.getConnection()){
+            String statement = "SELECT gameID, whiteUsername, blackUsername, gameName, chessGame from gameData";
+            try(var game = conn.prepareStatement(statement)) {
+                try (var returnedGame = game.executeQuery()) {
+                    while (returnedGame.next()) {
+                        int gameID = returnedGame.getInt("gameID");
+                        String whiteUsername = returnedGame.getString("whiteUsername");
+                        String blackUsername = returnedGame.getString("blackUsername");
+                        String gameName = returnedGame.getString("gameName");
+                        String gameJson = returnedGame.getString("chessGame");
+                        ChessGame chessGame = new Gson().fromJson(gameJson, ChessGame.class);
+                        GameData gameData = new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame);
+                        gameList.add(gameData);
 
+                    }
+                }
             }
         } catch (DataAccessException | SQLException e) {
             throw new ResponseException(500, e.getMessage());
         }
+
         return gameList;
     }
 
     public int createGame(String gameName) throws DataAccessException, ResponseException, SQLException {
-        int gameID = getGameID();
         ChessGame chessGame = new ChessGame();
         Gson gson = new Gson();
         String gameJson = gson.toJson(chessGame);
-        String statement = "INSERT into gameData (gameID, whiteUsername, " +
-                "blackUsername, gameName, gameJson) VALUES (?, ?, ?, ?, ?)";
-        executeUpdate(statement, gameID, null, null, gameName, gameJson);
-        return gameID;
+        String statement = "INSERT into gameData (whiteUsername, " +
+                "blackUsername, gameName, chessGame) VALUES (?, ?, ?, ?)";
+        executeUpdate(statement, null, null, gameName, gameJson);
+        return getGameID();
     }
 
     public GameData getGame(int gameID) throws DataAccessException, SQLException, ResponseException {
@@ -85,21 +87,22 @@ public class MySQLGameDAO implements GameDAO{
         Gson gson = new Gson();
         String gameJson = gson.toJson(chessGame);
         String statement = "UPDATE gameData SET whiteUsername = ?, blackUsername = ?, gameName = ?, chessGame = ? WHERE gameID = ?";
-        executeUpdate(statement, oldGameID, whiteUsername, blackUsername, gameName, gameJson);
+        executeUpdate(statement, whiteUsername, blackUsername, gameName, gameJson, oldGameID);
     }
 
-    public void clearGame() throws DataAccessException {
-
+    public void clearGame() throws DataAccessException, SQLException, ResponseException {
+        String Statement = "TRUNCATE gameData";
+        executeUpdate(Statement);
     }
 
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS gameData(
-            'gameID' int NOT NULL AUTO_INCREMENT,
-            'whiteUsername' VARCHAR(256) DEFAULT NULL,
-            'blackUsername' VARCHAR(256) DEFAULT NULL,
-            'gameName' VARCHAR(256) NOT NULL,
-            'chessGame' JSON DEFAULT NULL,
+            gameID int NOT NULL AUTO_INCREMENT,
+            whiteUsername VARCHAR(256) DEFAULT NULL,
+            blackUsername VARCHAR(256) DEFAULT NULL,
+            gameName VARCHAR(256) DEFAULT NULL,
+            chessGame JSON DEFAULT NULL,
             PRIMARY KEY(gameID)
             )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
@@ -140,12 +143,10 @@ public class MySQLGameDAO implements GameDAO{
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 for (var i = 0; i < params.length; i++) {
                     var param = params[i];
-                    switch (param) {
-                        case String p -> preparedStatement.setString(i + 1, p);
-                        case Integer p -> preparedStatement.setInt(i + 1, p);
-                        case null -> preparedStatement.setNull(i + 1, NULL);
-                        default -> {
-                        }
+                    if (param instanceof String p) preparedStatement.setString(i + 1, p);
+                    else if (param instanceof Integer p) preparedStatement.setInt(i + 1, p);
+                    else {
+                        if (param == null) preparedStatement.setNull(i + 1, NULL);
                     }
                 }
                 preparedStatement.executeUpdate();

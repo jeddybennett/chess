@@ -10,6 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ClearServiceTests {
@@ -24,9 +26,14 @@ public class ClearServiceTests {
 
     @BeforeEach
     public void initialize() throws ResponseException{
-        gameDAO = new MemoryGameDAO();
-        userDAO = new MemoryUserDAO();
-        authDAO = new MemoryAuthDAO();
+        try{
+        gameDAO = new MySQLGameDAO();
+        userDAO = new MySQLUserDAO();
+        authDAO = new MySQLAuthDAO();
+        }
+        catch(DataAccessException e){
+            throw new ResponseException(500, e.getMessage());
+        }
 
         gameService = new GameService(gameDAO, authDAO);
         userService = new UserService(userDAO, authDAO);
@@ -35,7 +42,7 @@ public class ClearServiceTests {
 
     @Test
     @DisplayName("Clear - Positive")
-    void positiveClear() throws ResponseException, DataAccessException {
+    void positiveClear() throws ResponseException, DataAccessException, SQLException {
         RegisterRequest registerRequest = new RegisterRequest("jeddyBennett",
                 "password123", "email@gmail.com");
         RegisterResult registerResult = userService.register(registerRequest);

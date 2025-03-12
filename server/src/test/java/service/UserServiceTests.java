@@ -7,6 +7,9 @@ import model.*;
 import exception.ResponseException;
 
 import org.junit.jupiter.api.*;
+
+import java.sql.SQLException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTests {
@@ -15,9 +18,15 @@ public class UserServiceTests {
 
 
     @BeforeEach
-    void initialize() throws ResponseException{
-        UserDAO userDAO = new MemoryUserDAO();
-        AuthDAO authDAO = new MemoryAuthDAO();
+    void initialize() throws ResponseException {
+        UserDAO userDAO;
+        AuthDAO authDAO;
+        try {
+            userDAO = new MySQLUserDAO();
+            authDAO = new MySQLAuthDAO();
+        } catch (DataAccessException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
         userService = new UserService(userDAO, authDAO);
     }
 
@@ -48,7 +57,7 @@ public class UserServiceTests {
 
     @Test
     @DisplayName("Login - Positive")
-    void testLoginPositive() throws ResponseException, DataAccessException{
+    void testLoginPositive() throws ResponseException, DataAccessException, SQLException {
         RegisterRequest registerRequest = new RegisterRequest("jeddyBennett",
                 "password123", "email@gmail.com");
         RegisterResult registerResult = userService.register(registerRequest);
@@ -73,7 +82,7 @@ public class UserServiceTests {
 
     @Test
     @DisplayName("Logout - Positive")
-    void testLogoutPositive() throws ResponseException, DataAccessException{
+    void testLogoutPositive() throws ResponseException, DataAccessException, SQLException {
         RegisterRequest registerRequest = new RegisterRequest("newUser", "password1234", "hello@gmail.com");
         RegisterResult registerResult = userService.register(registerRequest);
         LoginRequest loginRequest = new LoginRequest("newUser", "password1234");

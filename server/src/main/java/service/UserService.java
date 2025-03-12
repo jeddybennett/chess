@@ -61,7 +61,7 @@ public class UserService {
             String password = loginRequest.password();
             UserData currentUser = userDAO.getUser(username);
 
-            if (currentUser == null || BCrypt.checkpw(password, currentUser.password())){
+            if (currentUser == null||!BCrypt.checkpw(password, currentUser.password())){
                 throw new ResponseException(401, "Error: unauthorized");
             }
 
