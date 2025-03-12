@@ -54,7 +54,7 @@ public class UserService {
 
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws ResponseException {
+    public LoginResult login(LoginRequest loginRequest) throws ResponseException, SQLException {
 
         try {
             String username = loginRequest.username();
@@ -75,7 +75,7 @@ public class UserService {
         }
     }
 
-    public void logout(LogoutRequest logoutRequest) throws ResponseException {
+    public void logout(LogoutRequest logoutRequest) throws ResponseException, SQLException{
         String authToken = logoutRequest.authToken();
         try {
             AuthData authData = authDAO.getAuth(authToken);

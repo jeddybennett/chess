@@ -8,6 +8,9 @@ import exception.ResponseException;
 import model.*;
 import spark.Request;
 import spark.Response;
+
+import java.sql.SQLException;
+
 public class GameHandler {
     private final GameService gameService;
 
@@ -15,7 +18,7 @@ public class GameHandler {
         this.gameService = gameService;
     }
 
-    public Object creatGameHandler(Request req, Response res) throws ResponseException, DataAccessException {
+    public Object creatGameHandler(Request req, Response res) throws ResponseException, SQLException{
         JsonObject jsonObject = new Gson().fromJson(req.body(), JsonObject.class);
         jsonObject.addProperty("authToken", req.headers("authorization"));
         CreateGameRequest createGameRequest = new Gson().fromJson(jsonObject, CreateGameRequest.class);
@@ -29,7 +32,7 @@ public class GameHandler {
 
     }
 
-    public Object joinGameHandler(Request req, Response res) throws ResponseException, DataAccessException{
+    public Object joinGameHandler(Request req, Response res) throws ResponseException, SQLException{
         JsonObject jsonObject = new Gson().fromJson(req.body(), JsonObject.class);
         jsonObject.addProperty("authToken", req.headers("authorization"));
         try{
@@ -42,7 +45,7 @@ public class GameHandler {
         }
     }
 
-    public Object listGameHandler(Request req, Response res) throws ResponseException, DataAccessException{
+    public Object listGameHandler(Request req, Response res) throws ResponseException, DataAccessException, SQLException {
         try{
             ListGameRequest listGameRequest = new ListGameRequest(req.headers("authorization"));
             ListGameResult listGameResult = gameService.listGames(listGameRequest);

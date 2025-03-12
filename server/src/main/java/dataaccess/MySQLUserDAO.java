@@ -13,7 +13,7 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 public class MySQLUserDAO implements UserDAO {
 
     public MySQLUserDAO() throws DataAccessException, ResponseException {
-        congfigureDatabase();
+        configureDatabase();
     }
 
 
@@ -63,7 +63,7 @@ public class MySQLUserDAO implements UserDAO {
             """
     };
 
-    private void congfigureDatabase() throws ResponseException, DataAccessException {
+    private void configureDatabase() throws ResponseException, DataAccessException {
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             for (var statement : createStatements) {

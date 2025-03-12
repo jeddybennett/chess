@@ -8,6 +8,8 @@ import service.UserService;
 import spark.Request;
 import spark.Response;
 
+import java.sql.SQLException;
+
 public class UserHandler {
     private final UserService userService;
 
@@ -15,7 +17,7 @@ public class UserHandler {
         this.userService = userService;
     }
 
-    public Object registerHandler(Request req, Response res) throws ResponseException, DataAccessException {
+    public Object registerHandler(Request req, Response res) throws ResponseException{
         RegisterRequest registerRequest = new Gson().fromJson(req.body(), RegisterRequest.class);
         try{
             RegisterResult registerResult = userService.register(registerRequest);
@@ -26,7 +28,7 @@ public class UserHandler {
         }
     }
 
-    public Object loginHandler(Request req, Response res) throws ResponseException, DataAccessException{
+    public Object loginHandler(Request req, Response res) throws ResponseException, SQLException{
         LoginRequest loginRequest = new Gson().fromJson(req.body(), LoginRequest.class);
         try{
             LoginResult loginResult = userService.login(loginRequest);
@@ -37,7 +39,7 @@ public class UserHandler {
         }
     }
 
-    public Object logoutHandler(Request req, Response res) throws ResponseException, DataAccessException{
+    public Object logoutHandler(Request req, Response res) throws ResponseException, SQLException {
         LogoutRequest logoutRequest = new LogoutRequest(req.headers("authorization"));
         try{
             userService.logout(logoutRequest);

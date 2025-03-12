@@ -7,6 +7,8 @@ import dataaccess.DataAccessException;
 import exception.ResponseException;
 import model.*;
 
+import java.sql.SQLException;
+
 public class GameService {
     final private GameDAO gameDAO;
     final private AuthDAO authDAO;
@@ -16,7 +18,7 @@ public class GameService {
         this.authDAO = authDAO;
     }
 
-    public ListGameResult listGames(ListGameRequest listGameRequest) throws DataAccessException, ResponseException{
+    public ListGameResult listGames(ListGameRequest listGameRequest) throws DataAccessException, ResponseException, SQLException{
         String authToken = listGameRequest.authToken();
         AuthData authData = authDAO.getAuth(authToken);
         try {
@@ -34,7 +36,7 @@ public class GameService {
 
     }
 
-    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws ResponseException{
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws ResponseException, SQLException{
         String authToken = createGameRequest.authToken();
         String gameName = createGameRequest.gameName();
 
@@ -56,7 +58,7 @@ public class GameService {
         }
     }
 
-    public void joinGame(JoinGameRequest joinGameRequest) throws ResponseException, DataAccessException {
+    public void joinGame(JoinGameRequest joinGameRequest) throws ResponseException, SQLException {
 
         String authToken = joinGameRequest.authToken();
         ChessGame.TeamColor teamColor = joinGameRequest.playerColor();
