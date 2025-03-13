@@ -15,6 +15,19 @@ import static java.sql.Types.NULL;
 public class MySQLGameDAO implements GameDAO{
 
     public MySQLGameDAO() throws ResponseException, DataAccessException{
+        String[] createStatements = {
+                """
+            CREATE TABLE IF NOT EXISTS gameData(
+            gameID int NOT NULL AUTO_INCREMENT,
+            whiteUsername VARCHAR(256) DEFAULT NULL,
+            blackUsername VARCHAR(256) DEFAULT NULL,
+            gameName VARCHAR(256) DEFAULT NULL,
+            chessGame JSON DEFAULT NULL,
+            PRIMARY KEY(gameID)
+            )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+
+        };
         configureDatabase(createStatements);
     }
 
@@ -95,20 +108,6 @@ public class MySQLGameDAO implements GameDAO{
         executeUpdate(statement);
     }
 
-    private static final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS gameData(
-            gameID int NOT NULL AUTO_INCREMENT,
-            whiteUsername VARCHAR(256) DEFAULT NULL,
-            blackUsername VARCHAR(256) DEFAULT NULL,
-            gameName VARCHAR(256) DEFAULT NULL,
-            chessGame JSON DEFAULT NULL,
-            PRIMARY KEY(gameID)
-            )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """
-
-    };
-
     public static void configureDatabase(String[] createStatements) throws ResponseException, DataAccessException {
         DatabaseManager.createDatabase();
         try(var conn = DatabaseManager.getConnection()){
@@ -159,8 +158,8 @@ public class MySQLGameDAO implements GameDAO{
                 else if (param instanceof Integer p) {
                     preparedStatement.setInt(i + 1, p);
                 }
-                else {
-                    if (param == null) preparedStatement.setNull(i + 1, NULL);
+                else if (param == null){
+                    preparedStatement.setNull(i + 1, NULL);
                 }
             }
         }

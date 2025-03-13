@@ -36,8 +36,6 @@ public class MySQLAuthTests {
         authDAO.createAuth(authData);
         AuthData getAuth = authDAO.getAuth("authToken");
         assertNotNull(getAuth);
-        assertEquals("authToken", getAuth.authToken());
-        assertEquals("jeddy", getAuth.username());
     }
 
     @Test
@@ -56,12 +54,12 @@ public class MySQLAuthTests {
     @Test
     @DisplayName("Get Auth - Positive")
     void testGetAuthPositive() throws ResponseException, DataAccessException, SQLException{
-        AuthData authData = new AuthData("authToken", "jeddy");
+        AuthData authData = new AuthData("authToken", "testName");
         authDAO.createAuth(authData);
         AuthData getAuth = authDAO.getAuth("authToken");
         assertNotNull(getAuth);
         assertEquals("authToken", getAuth.authToken());
-        assertEquals("jeddy", getAuth.username());
+        assertEquals("testName", getAuth.username());
     }
 
     @Test
