@@ -1,6 +1,6 @@
 package dataaccess;
 
-import com.mysql.cj.protocol.a.SqlDateValueEncoder;
+import chess.ChessGame;
 import exception.ResponseException;
 import model.GameData;
 import org.junit.jupiter.api.BeforeAll;
@@ -95,20 +95,43 @@ public class MySQLGameTests {
         GameData gameData = gameDAO.getGame(gameID);
         String blackUserName = "blackName";
         String whiteUserName = "whiteName";
-        GameData updatedGame = new GameData(gameData.gameID(), blackUserName,
-                whiteUserName, gameData.gameName(), gameData.game());
+        GameData updatedGame = new GameData(gameData.gameID(), whiteUserName,
+                blackUserName, gameData.gameName(), gameData.game());
         gameDAO.updateGame(gameData.gameID(), updatedGame);
         GameData testData = gameDAO.getGame(gameID);
         assertNotNull(testData.blackUsername());
         assertNotNull(testData.whiteUsername());
         assertNotEquals(gameData.blackUsername(), testData.blackUsername());
         assertNotEquals(gameData.whiteUsername(), testData.whiteUsername());
+        assertEquals(blackUserName, testData.blackUsername());
+        assertEquals(whiteUserName, testData.whiteUsername());
     }
 
     @Test
     @DisplayName("Update Game - Negative")
     void testUpdateGameNegative() throws ResponseException, DataAccessException, SQLException{
-        
+        GameData fakeGame = new GameData(100, "stuff1",
+                "stuff2", "fakeGame",
+                new ChessGame());
+        gameDAO.updateGame(100, fakeGame);
+        GameData gameData = gameDAO.getGame(100);
+        assertNull(gameData);
+    }
+
+    @Test
+    @DisplayName("Clear Test")
+    void testClearGame() throws ResponseException, DataAccessException, SQLException{
+        gameDAO.createGame("firstGame");
+        gameDAO.createGame("secondGame");
+        gameDAO.createGame("thirdGame");
+        Collection<GameData>gameList = gameDAO.listGames();
+        assertEquals(3, gameList.size());
+
+        gameDAO.clearGame();
+        Collection<GameData>emptyList = gameDAO.listGames();
+        assertEquals(0, emptyList.size());
+        assertNotEquals(gameList.size(), emptyList.size());
+
     }
 
 
