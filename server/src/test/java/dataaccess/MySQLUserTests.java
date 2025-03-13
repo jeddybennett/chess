@@ -27,6 +27,7 @@ public class MySQLUserTests {
 
     }
 
+    @BeforeEach
     void clearDatabase() throws DataAccessException, ResponseException, SQLException {
         userDAO.clearUser();
     }
