@@ -10,7 +10,7 @@ import spark.*;
 
 public class Server {
 
-    public int run(int desiredPort) throws ResponseException, DataAccessException {
+    public int run(int desiredPort){
         Spark.port(desiredPort);
         GameDAO gameDAO;
         UserDAO userDAO;
@@ -22,8 +22,8 @@ public class Server {
             userDAO = new MySQLUserDAO();
             authDAO = new MySQLAuthDAO();
         }
-        catch(DataAccessException e){
-            throw new ResponseException(500, e.getMessage());
+        catch(DataAccessException | ResponseException e){
+            throw new RuntimeException(e);
         }
 
         ClearService clearService = new ClearService(gameDAO, authDAO, userDAO);

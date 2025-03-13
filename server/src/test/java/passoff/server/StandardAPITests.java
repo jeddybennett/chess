@@ -1,8 +1,6 @@
 package passoff.server;
 
 import chess.ChessGame;
-import dataaccess.DataAccessException;
-import exception.ResponseException;
 import org.junit.jupiter.api.*;
 import passoff.model.*;
 import server.Server;
@@ -32,7 +30,7 @@ public class StandardAPITests {
     }
 
     @BeforeAll
-    public static void init() throws ResponseException, DataAccessException {
+    public static void init(){
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
