@@ -7,10 +7,7 @@ import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.lang.module.ResolutionException;
 import java.sql.SQLException;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GameServiceTests {
@@ -20,10 +17,20 @@ public class GameServiceTests {
     private String authToken;
 
     @BeforeEach
-    void initialize() throws ResponseException{
-        UserDAO userDAO = new MemoryUserDAO();
-        gameDAO = new MemoryGameDAO();
-        AuthDAO authDAO = new MemoryAuthDAO();
+    void initialize() throws ResponseException, SQLException, DataAccessException {
+        UserDAO userDAO;
+        AuthDAO authDAO;
+        try {
+            userDAO = new MySQLUserDAO();
+            gameDAO = new MySQLGameDAO();
+            authDAO = new MySQLAuthDAO();
+        } catch (DataAccessException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
+
+        userDAO.clearUser();
+        gameDAO.clearGame();
+        authDAO.clearAuth();
 
         UserService userService = new UserService(userDAO, authDAO);
         gameService = new GameService(gameDAO, authDAO);

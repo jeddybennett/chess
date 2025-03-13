@@ -18,10 +18,19 @@ public class UserServiceTests {
 
 
     @BeforeEach
-    void initialize() throws ResponseException{
-        UserDAO userDAO = new MemoryUserDAO();
-        AuthDAO authDAO = new MemoryAuthDAO();
+    void initialize() throws ResponseException, SQLException, DataAccessException {
+        AuthDAO authDAO;
+        UserDAO userDAO;
+        try {
+            userDAO = new MySQLUserDAO();
+            authDAO = new MySQLAuthDAO();
+        } catch (DataAccessException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
+        userDAO.clearUser();
+        authDAO.clearAuth();
         userService = new UserService(userDAO, authDAO);
+
     }
 
     @Test

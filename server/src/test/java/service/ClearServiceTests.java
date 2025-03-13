@@ -25,10 +25,18 @@ public class ClearServiceTests {
     String authToken;
 
     @BeforeEach
-    public void initialize() throws ResponseException{
-        gameDAO = new MemoryGameDAO();
-        userDAO = new MemoryUserDAO();
-        authDAO = new MemoryAuthDAO();
+    public void initialize() throws ResponseException, SQLException, DataAccessException {
+        try {
+            gameDAO = new MySQLGameDAO();
+            userDAO = new MySQLUserDAO();
+            authDAO = new MySQLAuthDAO();
+        } catch (DataAccessException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
+
+        gameDAO.clearGame();
+        userDAO.clearUser();
+        authDAO.clearAuth();
 
         gameService = new GameService(gameDAO, authDAO);
         userService = new UserService(userDAO, authDAO);
