@@ -2,6 +2,7 @@ package dataaccess;
 
 import exception.ResponseException;
 import model.UserData;
+import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -71,8 +72,19 @@ public class MySQLUserTests {
         assertNull(fakeUser);
     }
 
-    
+    @Test
+    @DisplayName("Clear User")
+    void testClearUser() throws ResponseException, SQLException, DataAccessException{
+        UserData userOne = new UserData("first", "password", "first@first.com");
+        UserData userTwo = new UserData("second", "password", "second@second.com");
+        userDAO.createUser(userOne);
+        userDAO.createUser(userTwo);
+        userDAO.clearUser();
 
+        UserData getOne = userDAO.getUser("first");
+        UserData getTwo = userDAO.getUser("second");
 
-
+        assertNull(getOne);
+        assertNull(getTwo);
+    }
 }
