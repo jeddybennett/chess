@@ -26,14 +26,9 @@ public class ClearServiceTests {
 
     @BeforeEach
     public void initialize() throws ResponseException{
-        try{
-        gameDAO = new MySQLGameDAO();
-        userDAO = new MySQLUserDAO();
-        authDAO = new MySQLAuthDAO();
-        }
-        catch(DataAccessException e){
-            throw new ResponseException(500, e.getMessage());
-        }
+        gameDAO = new MemoryGameDAO();
+        userDAO = new MemoryUserDAO();
+        authDAO = new MemoryAuthDAO();
 
         gameService = new GameService(gameDAO, authDAO);
         userService = new UserService(userDAO, authDAO);

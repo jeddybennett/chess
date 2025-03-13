@@ -41,7 +41,7 @@ public class MySQLAuthDAO implements AuthDAO{
 
     public void deleteAuth(String authToken) throws DataAccessException, ResponseException, SQLException {
         String Statement = "DELETE from authData where authToken = ?";
-        executeUpdate(Statement);
+        executeUpdate(Statement, authToken);
     }
 
     public void clearAuth() throws DataAccessException, ResponseException, SQLException {

@@ -20,17 +20,10 @@ public class GameServiceTests {
     private String authToken;
 
     @BeforeEach
-    void initialize() throws ResponseException {
-        UserDAO userDAO;
-        AuthDAO authDAO;
-        try {
-            gameDAO = new MySQLGameDAO();
-            userDAO = new MySQLUserDAO();
-            authDAO = new MySQLAuthDAO();
-        }
-        catch (DataAccessException e) {
-            throw new ResponseException(500, e.getMessage());
-        }
+    void initialize() throws ResponseException{
+        UserDAO userDAO = new MemoryUserDAO();
+        gameDAO = new MemoryGameDAO();
+        AuthDAO authDAO = new MemoryAuthDAO();
 
         UserService userService = new UserService(userDAO, authDAO);
         gameService = new GameService(gameDAO, authDAO);
