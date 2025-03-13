@@ -64,36 +64,10 @@ public class MySQLUserDAO implements UserDAO {
     };
 
     private void configureDatabase() throws ResponseException, DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        }
-        catch (SQLException | DataAccessException exception) {
-            throw new ResponseException(500, String.format("Unable to configure database: %s", exception.getMessage()));
-        }
+        MySQLGameDAO.configureDatabase(createStatements);
     }
 
     private void executeUpdate(String statement, Object... params) throws ResponseException, DataAccessException, SQLException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement(statement)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    switch (param) {
-                        case String p -> preparedStatement.setString(i + 1, p);
-                        case Integer p -> preparedStatement.setInt(i + 1, p);
-                        case null -> preparedStatement.setNull(i + 1, NULL);
-                        default -> {
-                        }
-                    }
-                }
-                preparedStatement.executeUpdate();
-            } catch (SQLException e) {
-                throw new ResponseException(500, String.format("unable to update database: %s, %s", statement, e.getMessage()));
-            }
-        }
+        MySQLGameDAO.executeUpdate(statement, params);
     }
 }

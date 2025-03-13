@@ -15,7 +15,7 @@ import static java.sql.Types.NULL;
 public class MySQLGameDAO implements GameDAO{
 
     public MySQLGameDAO() throws ResponseException, DataAccessException{
-        configureDatabase();
+        configureDatabase(createStatements);
     }
 
     public Collection<GameData> listGames() throws DataAccessException, SQLException, ResponseException {
@@ -56,9 +56,9 @@ public class MySQLGameDAO implements GameDAO{
 
     public GameData getGame(int gameID) throws DataAccessException, SQLException, ResponseException {
         try(var conn = DatabaseManager.getConnection()){
-            var Statement = "SELECT gameID, whiteUsername, blackUsername, " +
+            var statement = "SELECT gameID, whiteUsername, blackUsername, " +
                                         "gameName, chessGame FROM gameData WHERE gameID = ?";
-            try(var game = conn.prepareStatement(Statement)){
+            try(var game = conn.prepareStatement(statement)){
                 game.setInt(1, gameID);
                 try(var returnedGame = game.executeQuery()){
                     if(returnedGame.next()){
@@ -91,11 +91,11 @@ public class MySQLGameDAO implements GameDAO{
     }
 
     public void clearGame() throws DataAccessException, SQLException, ResponseException {
-        String Statement = "TRUNCATE gameData";
-        executeUpdate(Statement);
+        String statement = "TRUNCATE gameData";
+        executeUpdate(statement);
     }
 
-    private final String[] createStatements = {
+    private static final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS gameData(
             gameID int NOT NULL AUTO_INCREMENT,
@@ -109,7 +109,7 @@ public class MySQLGameDAO implements GameDAO{
 
     };
 
-    private void configureDatabase() throws ResponseException, DataAccessException {
+    public static void configureDatabase(String[] createStatements) throws ResponseException, DataAccessException {
         DatabaseManager.createDatabase();
         try(var conn = DatabaseManager.getConnection()){
             for(var statement : createStatements){
@@ -124,9 +124,9 @@ public class MySQLGameDAO implements GameDAO{
     }
 
     private Integer getGameID() throws DataAccessException, ResponseException {
-        var Statement = "SELECT MAX(gameID) FROM gameData";
+        var statement = "SELECT MAX(gameID) FROM gameData";
         try(var conn = DatabaseManager.getConnection()){
-            var game = conn.prepareStatement(Statement);
+            var game = conn.prepareStatement(statement);
             var returnedGame = game.executeQuery();
             if(returnedGame.next()){
                 return returnedGame.getInt(1);
@@ -138,22 +138,33 @@ public class MySQLGameDAO implements GameDAO{
         return 1;
     }
 
-    static void executeUpdate(String statement, Object... params) throws SQLException, ResponseException, DataAccessException {
+    public static void executeUpdate(String statement, Object... params) throws SQLException, ResponseException, DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    if (param instanceof String p) preparedStatement.setString(i + 1, p);
-                    else if (param instanceof Integer p) preparedStatement.setInt(i + 1, p);
-                    else {
-                        if (param == null) preparedStatement.setNull(i + 1, NULL);
-                    }
-                }
+                setParams(preparedStatement, params);
                 preparedStatement.executeUpdate();
-            } catch (SQLException e) {
+                }
+                catch (SQLException e) {
                 throw new ResponseException(500, String.format("unable to update database: %s, %s", statement, e.getMessage()));
             }
         }
     }
 
-}
+    public static void setParams(java.sql.PreparedStatement preparedStatement, Object... params) throws SQLException {
+            for (var i = 0; i < params.length; i++) {
+                var param = params[i];
+                if (param instanceof String p) {
+                    preparedStatement.setString(i + 1, p);
+                }
+                else if (param instanceof Integer p) {
+                    preparedStatement.setInt(i + 1, p);
+                }
+                else {
+                    if (param == null) preparedStatement.setNull(i + 1, NULL);
+                }
+            }
+        }
+    }
+
+
+

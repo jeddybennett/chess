@@ -4,26 +4,27 @@ import exception.ResponseException;
 import model.AuthData;
 
 import java.sql.SQLException;
+import dataaccess.MySQLGameDAO.*;
 
 import static java.sql.Types.NULL;
 
 public class MySQLAuthDAO implements AuthDAO{
 
     public MySQLAuthDAO() throws ResponseException, DataAccessException {
-        configureDatabase();
+        authConfigureDatabase();
     }
 
     public void createAuth(AuthData authData) throws DataAccessException, ResponseException, SQLException {
             String authToken = authData.authToken();
             String username = authData.username();
             String statement = "INSERT into authData (authToken, username) VALUES (?, ?)";
-            executeUpdate(statement, authToken, username);
+            authExecuteUpdate(statement, authToken, username);
     }
 
     public AuthData getAuth(String authToken) throws DataAccessException, SQLException, ResponseException {
         try(var conn = DatabaseManager.getConnection()){
-            var Statement = "SELECT authToken, username FROM authData WHERE authToken = ?";
-            try(var user = conn.prepareStatement(Statement)){
+            var statement = "SELECT authToken, username FROM authData WHERE authToken = ?";
+            try(var user = conn.prepareStatement(statement)){
                 user.setString(1,  authToken);
                 try(var returnedUser = user.executeQuery()){
                     if(returnedUser.next()){
@@ -40,13 +41,13 @@ public class MySQLAuthDAO implements AuthDAO{
     }
 
     public void deleteAuth(String authToken) throws DataAccessException, ResponseException, SQLException {
-        String Statement = "DELETE from authData where authToken = ?";
-        executeUpdate(Statement, authToken);
+        String statement = "DELETE from authData where authToken = ?";
+        authExecuteUpdate(statement, authToken);
     }
 
     public void clearAuth() throws DataAccessException, ResponseException, SQLException {
-        String Statement = "TRUNCATE authData";
-        executeUpdate(Statement);
+        String statement = "TRUNCATE authData";
+        authExecuteUpdate(statement);
     }
 
     private final String[] createStatements = {
@@ -59,38 +60,12 @@ public class MySQLAuthDAO implements AuthDAO{
             """
     };
 
-    private void configureDatabase() throws ResponseException, DataAccessException {
-        DatabaseManager.createDatabase();
-        try(var conn = DatabaseManager.getConnection()){
-            for(var statement : createStatements){
-                try(var preparedStatement = conn.prepareStatement(statement)){
-                    preparedStatement.executeUpdate();
-                }
-            }
-        }
-        catch (SQLException e) {
-            throw new ResponseException(500, String.format("Unable to configure database: %s", e.getMessage()));
-        }
+    private void authConfigureDatabase() throws ResponseException, DataAccessException {
+        MySQLGameDAO.configureDatabase(createStatements);
     }
 
-    private void executeUpdate(String statement, Object... params) throws ResponseException, DataAccessException, SQLException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement(statement)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    switch (param) {
-                        case String p -> preparedStatement.setString(i + 1, p);
-                        case Integer p -> preparedStatement.setInt(i + 1, p);
-                        case null -> preparedStatement.setNull(i + 1, NULL);
-                        default -> {
-                        }
-                    }
-                }
-                preparedStatement.executeUpdate();
-            } catch (SQLException e) {
-                throw new ResponseException(500, String.format("unable to update database: %s, %s", statement, e.getMessage()));
-            }
-        }
+    private void authExecuteUpdate(String statement, Object... params) throws ResponseException, DataAccessException, SQLException {
+        MySQLGameDAO.executeUpdate(statement, params);
     }
 }
 
