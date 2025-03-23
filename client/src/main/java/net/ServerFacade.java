@@ -26,6 +26,7 @@ public class ServerFacade {
     public ListGameResult listGames(ListGameRequest listGameRequest){
         String authToken = listGameRequest.authToken();
         ClientCommunicator.getlistGames();
+        return null;
     }
 
 

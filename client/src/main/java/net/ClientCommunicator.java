@@ -23,8 +23,8 @@ public class ClientCommunicator {
 
     }
 
-    public static void getlistGames(){
-
+    public static void getlistGames(String method, String path, Object request, Class<T> responseClass, String authToken){
+        
     }
 
 

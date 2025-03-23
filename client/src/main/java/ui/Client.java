@@ -14,6 +14,14 @@ public class Client {
     //Check flags to see what level menu you're at (use an authToken)
     //This will help you determine where the user is at
     //play game and observe game should draw the chessBoard
+    public void run(){
+        System.out.println("Welcome to Chess: Register or Sign-in to Start");
+        System.out.println(client.help());
+    }
+
+    public void help(){
+
+    }
 
     public static void drawHeaders(PrintStream out){
 
