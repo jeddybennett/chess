@@ -8,24 +8,22 @@ public class ServerFacade {
 
     //should have 7 methods that talk to ClientCommunicator for an HTTP call
     public RegisterResult register(RegisterRequest registerRequest){
-
+        return null;
     }
 
     public LoginResult login(LoginRequest loginRequest){
-
+        return null;
     }
 
     public void join(JoinGameRequest joinGameRequest){
-
     }
 
     public void clear(ClearRequest clearRequest){
-
     }
 
     public ListGameResult listGames(ListGameRequest listGameRequest){
         String authToken = listGameRequest.authToken();
-        ClientCommunicator.getlistGames();
+//        ClientCommunicator.getlistGames();
         return null;
     }
 

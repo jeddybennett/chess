@@ -16,7 +16,7 @@ public class Client {
     //play game and observe game should draw the chessBoard
     public void run(){
         System.out.println("Welcome to Chess: Register or Sign-in to Start");
-        System.out.println(client.help());
+//        System.out.println(client.help());
     }
 
     public void help(){

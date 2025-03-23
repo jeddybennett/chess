@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessGame;
 import chess.ChessPiece;
+import chess.ChessPosition;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -14,61 +15,88 @@ public class ChessBoard {
     public static void main(String[] args){
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
+
+        ChessGame game = new ChessGame();
+        chess.ChessBoard board = game.getBoard();
+        drawBoard(out, board, true);
+        drawBoard(out, board, false);
+
     }
 
-    public enum ChessColor{
-        WHITE,
-        BLACK
+    public static void drawBoard(PrintStream out, chess.ChessBoard board, boolean isWhite){
+        drawHeaders(out, isWhite);
+        if(isWhite){
+            for(int row = 8; row>=1;row --){
+                drawRow(out, board, row, true);
+            }
+        }
+        else{
+            for(int row = 1; row<=8;row ++){
+                drawRow(out, board, row, false);
+            }
+        }
+        drawHeaders(out, isWhite);
+    }
+    private static void drawHeaders(PrintStream out, boolean isWhite) {
+        out.print("   ");
+        if (isWhite) {
+            for (char letter = 'a'; letter <= 'h'; letter++) {
+                out.print(" " + letter + " ");
+            }
+        }
+        else {
+            for(char letter = 'h'; letter>='a';letter--){
+                out.print(" " + letter + " ");
+            }
+        }
+        out.println();
     }
 
-    static class ChessSquare{
-        ChessColor color;
-        ChessPiece.PieceType pieceType;
-        boolean whiteTeam;
-        boolean startGame;
 
-        ChessSquare(ChessColor color, ChessPiece.PieceType pieceType, boolean whiteTeam,
-                    boolean startGame){
-            this.color = color;
-            this.pieceType = pieceType;
-            this.whiteTeam = whiteTeam;
-            this.startGame = startGame;
+    private static void drawRow(PrintStream out, chess.ChessBoard board, int row, boolean isWhite){
+        System.out.printf("%2d ", row);
+        if(isWhite){
+            for(int col = 1; col <= 8; col++){
+                drawSquare(out, board, row, col);
+            }
+        }
+        else{
+            for(int col = 8; col >=1; col--){
+                drawSquare(out, board, row, col);
+            }
+        }
+        System.out.printf(" %2d\n", row);
+    }
+
+    private static void drawSquare(PrintStream out, chess.ChessBoard board, int row, int col){
+        ChessPosition position = new ChessPosition(row, col);
+        ChessPiece piece = board.getPiece(position);
+        boolean whiteSquare = ((row + col) % 2 == 0);
+        if(whiteSquare){
+            drawWhiteSquare(out, piece);
+        }
+        else{
+            drawBlackSquare(out, piece);
         }
     }
-    //Build White first and then figure out how to draw for black
-    public static void drawWhiteSquare(ChessPiece piece){
-        //check if you need to draw a piece in this method
-        String color = SET_BG_COLOR_RED;
-        if(piece == null){
-            System.out.println();
-        }
-    }
 
-    private static void drawRow(){
-
-    }
-
-    private static void drawSquare(){
-        
-    }
-
-    private static void drawBlackSquare(ChessPiece piece){
+    private static void drawBlackSquare(PrintStream out, ChessPiece piece){
         //check if you need to draw a piece in this method
         System.out.print(SET_BG_COLOR_BLUE);
         if(piece == null){
-            System.out.print(EMPTY);
+            out.print(EMPTY);
         }
         else{
             String pieceSymbol = symbolPiece(piece);
-            System.out.print(pieceSymbol);
+            out.print(pieceSymbol);
         }
-        System.out.print(RESET_BG_COLOR);
+        out.print(RESET_BG_COLOR);
     }
 
-    private static void drawChessBoard(ChessPiece piece){
+    private static void drawWhiteSquare(PrintStream out, ChessPiece piece){
         //pass in a matrix of where the pieces are located
         //have draw BlackSquares and drawWhiteSquares look up positions in the matrix
-        System.out.print(SET_BG_COLOR_RED);
+        out.print(SET_BG_COLOR_RED);
         if(piece == null){
             System.out.print(EMPTY);
         }
@@ -76,7 +104,7 @@ public class ChessBoard {
             String pieceSymbol = symbolPiece(piece);
             System.out.print(pieceSymbol);
         }
-        System.out.print(RESET_BG_COLOR);
+        out.print(RESET_BG_COLOR);
     }
 
 
@@ -102,4 +130,5 @@ public class ChessBoard {
             case null -> EMPTY;
         };
     }
+    
 }

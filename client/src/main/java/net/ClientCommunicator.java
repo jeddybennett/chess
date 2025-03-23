@@ -23,9 +23,9 @@ public class ClientCommunicator {
 
     }
 
-    public static void getlistGames(String method, String path, Object request, Class<T> responseClass, String authToken){
-        
-    }
+//    public static void getlistGames(String method, String path, Object request, Class<T> responseClass, String authToken){
+//
+//    }
 
 
 
