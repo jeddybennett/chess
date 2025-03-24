@@ -1,4 +1,7 @@
 package ui;
+import exception.ResponseException;
+import model.RegisterRequest;
+import model.RegisterResult;
 import net.ServerFacade;
 
 import java.util.Arrays;
@@ -8,12 +11,12 @@ import java.util.Objects;
 public class Client {
 
     private final static boolean preLogin = true;
-    private final ServerFacade server;
+    private final ServerFacade serverFacade;
     private final String serverURL;
 
 
     public Client(String serverURL, Repl repl) {
-        server = new ServerFacade(serverURL);
+        serverFacade = new ServerFacade(serverURL);
         this.serverURL = serverURL;
     }
 
@@ -55,8 +58,13 @@ public class Client {
         }
     }
 
-    public String register(String... params){
-
+    public String register(String... params) throws ResponseException {
+        String username = params[0];
+        String password = params[1];
+        String email = params[2];
+        RegisterRequest registerRequest = new RegisterRequest(username, password, email);
+        RegisterResult result = serverFacade.register(registerRequest);
+        if(result != null && result.success())
     }
 
     public String login(String... params){

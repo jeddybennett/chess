@@ -26,7 +26,7 @@ public class ClientCommunicator {
             writeBody(request, connection);
             connection.connect();
             throwIfNotSuccessful(connection);
-            return readBody(connection, responseClass)
+            return readBody(connection, responseClass);
 
 
         } catch (Exception e) {
