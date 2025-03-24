@@ -1,16 +1,20 @@
 package ui;
 import net.ServerFacade;
 
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.Objects;
-
-import static ui.EscapeSequences.*;
 
 public class Client {
 
+    private final static boolean preLogin = true;
+    private final ServerFacade server;
+    private final String serverURL;
+
 
     public Client(String serverURL, Repl repl) {
+        server = new ServerFacade(serverURL);
+        this.serverURL = serverURL;
     }
 
     //This shouldn't draw any of the chess board here
@@ -23,50 +27,80 @@ public class Client {
 //        System.out.println(client.help());
     }
 
-    public String helpPreLogin(String command){
-        if(Objects.equals(command, "help")){
-                return "Login as an Existing User: \"login\" <USERNAME> <PASSWORD>\n
-                        Register a new User: \" register\" <USERNAME> <PASSWORD> <EMAIL>\n
-                        Exit the program: "quit"\n
-                        Print this message: "help";
+    
+
+    public String eval(String input) {
+        String cmd;
+        String[] params = null;
+        if (preLogin) {
+            var tokens = input.toLowerCase().split(" ");
+            cmd = (tokens.length > 0) ? tokens[0] : "help";
+            params = Arrays.copyOfRange(tokens, 1, tokens.length);
+            return switch (cmd) {
+                case "register" -> register(params);
+                case "login" -> login(params);
+                case "quit" -> "quit";
+                default -> helpPreLogin();
+            };
+        } else {
+            return switch (cmd) {
+                case "logout" -> logout(params);
+                case "create" -> createGame(params);
+                case "list" -> listGames(params);
+                case "join" -> playGame(params);
+                case "observe" -> observeGame(params);
+                case "quit" -> "quit";
+                default -> helpPostLogin();
+            };
         }
-        else{
-            return null;
+    }
+
+    public String register(String... params){
+
+    }
+
+    public String login(String... params){
+
+    }
+
+    public String logout(String... params){
+
+    }
+
+    public String createGame(String... params){
+
+    }
+
+    public String listGames(String... params){
+
+    }
+
+    public String playGame(String... params){
+
+    }
+
+    public String observeGame(String... params){
+
+    }
+
+    public String helpPostLogin(){
+            return """
+                    create <NAME> - a game
+                    list - games
+                    join <ID> [WHITE|BLACK] - a game
+                    logout - when you finish playing
+                    quit - playing chess
+                    help - with possible commands
+                    """;
         }
-    }
 
-    public String helpPostLogin(String command){
-
-    }
-
-    public String helpGame(String command){
-
-    }
-
-    public static void drawHeaders(PrintStream out){
-
-    }
-
-    public static void drawHeader(PrintStream out, String headerText){
-
-    }
-
-    private static void printHeaderText(PrintStream out, String player){
-        out.print(SET_BG_COLOR_RED);
-        out.print(SET_TEXT_COLOR_MAGENTA);
-        //look up ansi color code escape sequences to make your own
-    }
-
-    private static void drawChessBoard(PrintStream out){
-        //for (int boardRow = 0; )
-    }
-
-    private static void drawSquareRows(PrintStream out){
-
-    }
-
-    //look for unicode chess characters
-
-
+    public String helpPreLogin() {
+            return """
+               Login as an Existing User: "login" <USERNAME> <PASSWORD>
+               Register a new User: "register" <USERNAME> <PASSWORD> <EMAIL>
+               Exit the program: "quit"
+               Print this message: "help"
+               """;
+        }
 
 }
