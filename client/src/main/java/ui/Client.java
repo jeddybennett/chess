@@ -3,11 +3,15 @@ import net.ServerFacade;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 import static ui.EscapeSequences.*;
 
 public class Client {
 
+
+    public Client(String serverURL, Repl repl) {
+    }
 
     //This shouldn't draw any of the chess board here
     //This is where you should write code to display certain menus
@@ -19,7 +23,23 @@ public class Client {
 //        System.out.println(client.help());
     }
 
-    public void help(){
+    public String helpPreLogin(String command){
+        if(Objects.equals(command, "help")){
+                return "Login as an Existing User: \"login\" <USERNAME> <PASSWORD>\n
+                        Register a new User: \" register\" <USERNAME> <PASSWORD> <EMAIL>\n
+                        Exit the program: "quit"\n
+                        Print this message: "help";
+        }
+        else{
+            return null;
+        }
+    }
+
+    public String helpPostLogin(String command){
+
+    }
+
+    public String helpGame(String command){
 
     }
 
