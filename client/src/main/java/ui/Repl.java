@@ -14,8 +14,8 @@ public class Repl {
     }
 
     public void run(){
-        System.out.println("\uD83D\uDC36 Welcome to Chess. Sign in to start.");
-        System.out.print(client.helpPreLogin());
+        System.out.println("\uD83D\uDC36 Welcome to Chess. Sign in to start.\n" +
+                "Type \"help\" to get started!");
 
         Scanner scanner = new Scanner(System.in);
         var result = "";

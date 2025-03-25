@@ -11,19 +11,9 @@ import static ui.EscapeSequences.*;
 
 public class ChessBoard {
 
-    //plan on deleting this after you get the chessboard working
-    public static void main(String[] args){
+    public static void drawBoard(chess.ChessBoard board, boolean isWhite){
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
-
-        ChessGame game = new ChessGame();
-        chess.ChessBoard board = game.getBoard();
-        drawBoard(out, board, true);
-        drawBoard(out, board, false);
-
-    }
-
-    public static void drawBoard(PrintStream out, chess.ChessBoard board, boolean isWhite){
         drawHeaders(out, isWhite);
         if(isWhite){
             for(int row = 8; row>=1;row --){
@@ -65,7 +55,7 @@ public class ChessBoard {
                 drawSquare(out, board, row, col);
             }
         }
-        System.out.printf(" %2d\n", row);
+        System.out.printf("%2d\n", row);
     }
 
     private static void drawSquare(PrintStream out, chess.ChessBoard board, int row, int col){

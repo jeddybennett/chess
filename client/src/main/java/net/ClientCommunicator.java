@@ -17,10 +17,13 @@ public class ClientCommunicator {
         this.serverURL = serverURL;
     }
 
-    public <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    public <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException {
         try {
             URL url = (new URI(serverURL + path)).toURL();
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            if(authToken != null){
+                connection.setRequestProperty("Authorization", authToken);
+            }
             connection.setRequestMethod(method);
             connection.setDoOutput(true);
             writeBody(request, connection);
