@@ -1,10 +1,7 @@
 package client;
 
 import exception.ResponseException;
-import model.LoginRequest;
-import model.LoginResult;
-import model.RegisterRequest;
-import model.RegisterResult;
+import model.*;
 import net.ServerFacade;
 import org.junit.jupiter.api.*;
 import server.Server;
@@ -37,7 +34,7 @@ public class ServerFacadeTests {
 
     @Test
     @DisplayName("Register - Positive")
-    void positiveTestRegister{
+    void positiveTestRegister() throws ResponseException {
         RegisterRequest registerRequest = new RegisterRequest("Jeddy",
                 "Bennett", "bennett@c.com");
         RegisterResult registerResult = facade.register(registerRequest);
@@ -52,7 +49,7 @@ public class ServerFacadeTests {
 
     @Test
     @DisplayName("Register - Negative")
-    public void negativeTestRegister{
+    public void negativeTestRegister() throws ResponseException {
         RegisterRequest registerRequest = new RegisterRequest("user1",
                 "password", "s@s.com");
         RegisterResult registerResult1 = facade.register(registerRequest);
@@ -64,7 +61,7 @@ public class ServerFacadeTests {
 
     @Test
     @DisplayName("Login - Positive")
-    void positiveTestLogin{
+    void positiveTestLogin() throws ResponseException {
         String username = "new";
         String password = "user";
         RegisterRequest registerRequest = new RegisterRequest(username,password, "stufff@help.com");
@@ -79,7 +76,7 @@ public class ServerFacadeTests {
 
     @Test
     @DisplayName("Login - Negative")
-    void negativeTestLogin{
+    void negativeTestLogin() throws ResponseException {
         facade.register(new RegisterRequest("new", "user", "user@user.com"));
         LoginRequest login1 = new LoginRequest("new", "badPassword");
         LoginRequest login2 = new LoginRequest("badUsername", "doesnotMatter");
@@ -93,14 +90,66 @@ public class ServerFacadeTests {
 
     @Test
     @DisplayName("Logout - Positive")
-    void positiveTestLogout{
+    void positiveTestLogout() throws ResponseException {
         String username = "newUser";
         String password = "goodTimes";
         facade.register(new RegisterRequest(username, password, "email@email.com"));
         LoginResult loginResult = facade.login(new LoginRequest(username, password));
         String authToken = loginResult.authToken();
-        assertDoesNotThrow(facade.logout(authToken));
+        assertDoesNotThrow(() -> facade.logout(authToken));
     }
+
+    @Test
+    @DisplayName("Logout - Negative")
+    void negativeTestLogout(){
+        String badToken = "thisIsAFakeToken";
+        ResponseException ex = assertThrows(ResponseException.class, ()->{
+            facade.logout(badToken);
+        });
+        assertEquals(500, ex.statusCode());
+    }
+
+    @Test
+    @DisplayName("Create Game - Positive")
+    void positiveTestCreateGame() throws ResponseException {
+        facade.register(new RegisterRequest("new", "user", "ugh@ugh.com"));
+        LoginResult loginResult = facade.login(new LoginRequest("new", "user"));
+        String authToken = loginResult.authToken();
+        CreateGameRequest createGameRequest = new CreateGameRequest("GAME1", authToken);
+        CreateGameResult createGameResult = facade.createGame(createGameRequest);
+        int gameID = createGameResult.gameID();
+        assertNotNull(createGameResult);
+        assertTrue(gameID > 0);
+    }
+
+
+    @Test
+    @DisplayName("Create Game - Negative")
+    void negativeTestCreateGame(){
+        String badToken = "fakeToken";
+        CreateGameRequest createGameRequest = new CreateGameRequest("GAME", badToken);
+        ResponseException ex = assertThrows(ResponseException.class, ()->{
+            facade.createGame(createGameRequest);
+        });
+        assertEquals(500, ex.statusCode());
+    }
+
+    @Test
+    @DisplayName("Join Game - Positive")
+    void positiveTestJoinGame(){
+
+    }
+
+    @Test
+    @DisplayName("Join Game - Negative")
+    void negativeTestJoinGame(){
+
+    }
+
+    @Test
+    @DisplayName("")
+
+
 
 
 
