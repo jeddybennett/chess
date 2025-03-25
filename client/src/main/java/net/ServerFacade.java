@@ -17,17 +17,12 @@ public class ServerFacade {
 
     //should have 7 methods that talk to ClientCommunicator for an HTTP call
     public RegisterResult register(RegisterRequest registerRequest) throws ResponseException {
-        String email = registerRequest.email();
-        String password = registerRequest.password();
-        String username = registerRequest.username();
         var path = "/user";
         var method = "POST";
         return clientCommunicator.makeRequest(method, path, registerRequest, RegisterResult.class);
     }
 
     public LoginResult login(LoginRequest loginRequest) throws ResponseException {
-        String username = loginRequest.username();
-        String password = loginRequest.password();
         var path = "/session";
         var method = "POST";
         return clientCommunicator.makeRequest(method, path, loginRequest, LoginResult.class);

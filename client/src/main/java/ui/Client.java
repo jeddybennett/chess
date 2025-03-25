@@ -1,18 +1,23 @@
 package ui;
+import chess.ChessGame;
 import exception.ResponseException;
-import model.RegisterRequest;
-import model.RegisterResult;
+import model.*;
 import net.ServerFacade;
 
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 
 public class Client {
 
-    private final static boolean preLogin = true;
+    private enum State{
+        LOGGED_OUT,
+        LOGGED_IN
+    }
+
+    private static boolean preLogin = true;
     private final ServerFacade serverFacade;
     private final String serverURL;
+    private State state;
+    private String authToken;
 
 
     public Client(String serverURL, Repl repl) {
@@ -20,24 +25,27 @@ public class Client {
         this.serverURL = serverURL;
     }
 
+    public static String generateToken() {
+        return UUID.randomUUID().toString();
+    }
+
     //This shouldn't draw any of the chess board here
     //This is where you should write code to display certain menus
     //Check flags to see what level menu you're at (use an authToken)
     //This will help you determine where the user is at
     //play game and observe game should draw the chessBoard
-    public void run(){
-        System.out.println("Welcome to Chess: Register or Sign-in to Start");
-//        System.out.println(client.help());
-    }
+//    public void run(){
+//        System.out.println("Welcome to Chess: Register or Sign-in to Start");
+////        System.out.println(client.help());
+//    }
 
-    
 
-    public String eval(String input) {
-        String cmd;
+
+    public String eval(String input) throws ResponseException {
+        var tokens = input.toLowerCase().split(" ");
+        String cmd = (tokens.length > 0) ? tokens[0] : "help";;
         String[] params = null;
         if (preLogin) {
-            var tokens = input.toLowerCase().split(" ");
-            cmd = (tokens.length > 0) ? tokens[0] : "help";
             params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "register" -> register(params);
@@ -64,31 +72,74 @@ public class Client {
         String email = params[2];
         RegisterRequest registerRequest = new RegisterRequest(username, password, email);
         RegisterResult result = serverFacade.register(registerRequest);
-        if(result != null && result.success())
+        if(result != null){
+            return "User Registered Successfully";
+        }
+        else{
+            return "User registration invalid";
+        }
     }
 
-    public String login(String... params){
+    public String login(String... params) throws ResponseException {
+        String username = params[0];
+        String password = params[1];
+        LoginRequest loginRequest = new LoginRequest(username, password);
+        LoginResult loginResult = serverFacade.login(loginRequest);
+        this.authToken = loginResult.authToken();
+        if(loginResult.authToken() != null){
+            preLogin = false;
+            return "Login Successful";
+        }
+        else{
+            return "Login failed";
+        }
+    }
+
+    public String logout(String... params) throws ResponseException {
+        LogoutRequest logoutRequest = new LogoutRequest(this.authToken);
+        serverFacade.logout(logoutRequest);
+        preLogin = true;
+        this.authToken = null;
+        return "Logged out successfully";
+    }
+
+    public String createGame(String... params) throws ResponseException {
+        String gameName = params[0];
+        String newAuth = generateToken();
+        CreateGameRequest createGameRequest = new CreateGameRequest(gameName, newAuth);
+        CreateGameResult createGameResult = serverFacade.createGame(createGameRequest);
+        int gameID = createGameResult.gameID();
+        if(gameID > 0){
+            return "Game Created Successfully";
+        }
+        else{
+            return "Game not created";
+        }
+
 
     }
 
-    public String logout(String... params){
-
+    public String listGames(String... params) throws ResponseException {
+        ListGameRequest listGameRequest = new ListGameRequest(this.authToken);
+        ListGameResult result = serverFacade.listGames(listGameRequest);
+        Collection<GameData>games = result.games();
+        return games.toString();
     }
 
-    public String createGame(String... params){
+    public String playGame(String... params) throws ResponseException {
 
-    }
+        String newAuth = generateToken();
+        ChessGame.TeamColor color = ChessGame.TeamColor.valueOf(params[0].toUpperCase());
+        int newGameID = Integer.parseInt(params[1]);
 
-    public String listGames(String... params){
-
-    }
-
-    public String playGame(String... params){
-
+        JoinGameRequest joinGameRequest = new JoinGameRequest(newAuth, color, newGameID);
+        serverFacade.joinGame(joinGameRequest);
+        return "Game joined Successfully";
     }
 
     public String observeGame(String... params){
-
+        int gameID = Integer.parseInt(params[0]);
+        return "Now Observing Game";
     }
 
     public String helpPostLogin(){
