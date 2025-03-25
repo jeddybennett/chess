@@ -109,7 +109,8 @@ public class ChessBoard {
 
     }
 
-    private static String getPieceType(ChessPiece piece, String blackKing, String blackQueen, String blackRook, String blackBishop, String blackKnight, String blackPawn) {
+    private static String getPieceType(ChessPiece piece, String blackKing, String blackQueen, String blackRook,
+                                       String blackBishop, String blackKnight, String blackPawn) {
         return switch (piece.getPieceType()) {
             case KING -> blackKing;
             case QUEEN -> blackQueen;

@@ -41,11 +41,6 @@ public class Repl {
         System.out.println("You won't get any better if you leave");
     }
 
-    public void notify(Notification notification){
-        System.out.println(SET_TEXT_COLOR_RED + notification.getMessage());
-        printPrompt();
-    }
-
     public void printPrompt(){
         String promptState = client.isLogin() ? "LOGGED_OUT" : "LOGGED_IN";
         System.out.println("\n" + "\u001b" + promptState + ">>> " + SET_TEXT_COLOR_GREEN);
