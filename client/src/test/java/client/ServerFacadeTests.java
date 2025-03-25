@@ -1,10 +1,14 @@
 package client;
 
+import chess.ChessGame;
 import exception.ResponseException;
 import model.*;
 import net.ServerFacade;
 import org.junit.jupiter.api.*;
 import server.Server;
+
+import java.util.Collection;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -96,6 +100,7 @@ public class ServerFacadeTests {
         facade.register(new RegisterRequest(username, password, "email@email.com"));
         LoginResult loginResult = facade.login(new LoginRequest(username, password));
         String authToken = loginResult.authToken();
+        assertNotNull(authToken);
         assertDoesNotThrow(() -> facade.logout(authToken));
     }
 
@@ -136,18 +141,81 @@ public class ServerFacadeTests {
 
     @Test
     @DisplayName("Join Game - Positive")
-    void positiveTestJoinGame(){
-
+    void positiveTestJoinGame() throws ResponseException {
+        facade.register(new RegisterRequest("new", "user", "woo@woo.com"));
+        LoginResult loginResult = facade.login(new LoginRequest("new", "user"));
+        String authToken = loginResult.authToken();
+        CreateGameResult createGameResult = facade.createGame(new CreateGameRequest(
+                "Game1", authToken));
+        int gameID = createGameResult.gameID();
+        ChessGame.TeamColor playerColor = ChessGame.TeamColor.BLACK;
+        assertTrue(gameID > 0);
+        assertDoesNotThrow(()->facade.joinGame(new JoinGameRequest(authToken, playerColor, gameID)));
     }
 
     @Test
     @DisplayName("Join Game - Negative")
-    void negativeTestJoinGame(){
-
+    void negativeTestJoinGame() throws ResponseException {
+        facade.register(new RegisterRequest("test", "user", "woo@woo.com"));
+        LoginResult loginResult = facade.login(new LoginRequest("test", "user"));
+        String authToken = loginResult.authToken();
+        CreateGameRequest createGameRequest = new CreateGameRequest("Game1", authToken);
+        CreateGameResult createGameResult = facade.createGame(createGameRequest);
+        int gameID = createGameResult.gameID();
+        ChessGame.TeamColor playerColor = ChessGame.TeamColor.BLACK;
+        JoinGameRequest joinGameRequest = new JoinGameRequest(authToken, playerColor, 90000);
+        ResponseException ex = assertThrows(ResponseException.class, ()->{
+            facade.joinGame(joinGameRequest);
+        });
+        assertEquals(500, ex.statusCode());
     }
 
     @Test
-    @DisplayName("")
+    @DisplayName("List Game - Positive")
+    void positiveListGame() throws ResponseException {
+        String username = "try";
+        String password = "password";
+        facade.register(new RegisterRequest(username, password, "email@email.com"));
+        LoginResult loginResult = facade.login(new LoginRequest(username, password));
+        String authToken = loginResult.authToken();
+        facade.createGame(new CreateGameRequest("GAME1", authToken));
+        facade.createGame(new CreateGameRequest("GAME2", authToken));
+        facade.createGame(new CreateGameRequest("GAME3", authToken));
+        ListGameResult listGameResult = facade.listGames(new ListGameRequest(authToken));
+        Collection<GameData> gameInfo = listGameResult.games();
+        assertNotNull(gameInfo);
+        assertEquals(3, gameInfo.size());
+    }
+
+    @Test
+    @DisplayName("List Game - Negative")
+    void negativeListGame(){
+        String badToken = "badToken";
+        ResponseException ex = assertThrows(ResponseException.class, ()->{
+            facade.listGames(new ListGameRequest(badToken));
+        });
+        assertEquals(500, ex.statusCode());
+    }
+
+    @Test
+    @DisplayName("Clear Test")
+    void clearGame() throws ResponseException {
+        facade.register(new RegisterRequest("user1", "password1", "email1@email.com"));
+        facade.register(new RegisterRequest("user2", "password2", "email2@email.com"));
+        LoginResult login1 = facade.login(new LoginRequest("user1", "password1"));
+        LoginResult login2 = facade.login(new LoginRequest("user2", "password2"));
+        String auth1 = login1.authToken();
+        String auth2 = login2.authToken();
+        CreateGameResult createGameResult = facade.createGame(new CreateGameRequest("GAME1", auth1));
+        facade.createGame(new CreateGameRequest("GAME2", auth2));
+        facade.clear();
+        assertThrows(ResponseException.class, ()->{
+            facade.login(new LoginRequest("user1", "password1"));
+        });
+        assertThrows(ResponseException.class, ()->{
+            facade.joinGame(new JoinGameRequest(auth1, ChessGame.TeamColor.BLACK, createGameResult.gameID()));
+        });
+    }
 
 
 
