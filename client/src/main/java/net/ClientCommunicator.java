@@ -31,7 +31,6 @@ public class ClientCommunicator {
             throwIfNotSuccessful(connection);
             return readBody(connection, responseClass);
 
-
         } catch (Exception e) {
             throw new ResponseException(500, e.getMessage());
         }

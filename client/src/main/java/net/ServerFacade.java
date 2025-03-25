@@ -5,8 +5,6 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import exception.ResponseException;
 import model.*;
-import net.ClientCommunicator;
-import ui.Client;
 
 public class ServerFacade {
 
@@ -57,12 +55,10 @@ public class ServerFacade {
         return clientCommunicator.makeRequest(method, path, null, ListGameResult.class, authToken);
     }
 
-    public void clear(ClearRequest clearRequest) throws ResponseException {
-        String authToken = clearRequest.authToken();
-        int gameID = clearRequest.gameID();
+    public void clear() throws ResponseException {
         var path = "/db";
         var method = "DELETE";
-        clientCommunicator.makeRequest(method, path, clearRequest, null, authToken);
+        clientCommunicator.makeRequest(method, path, null, null, null);
     }
 
 
