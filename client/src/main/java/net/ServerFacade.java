@@ -52,7 +52,6 @@ public class ServerFacade {
 
     public ListGameResult listGames(ListGameRequest listGameRequest) throws ResponseException{
         String authToken = listGameRequest.authToken();
-        System.out.println(authToken);
         var path = "/game";
         var method = "GET";
         return clientCommunicator.makeRequest(method, path, null, ListGameResult.class, authToken);

@@ -8,15 +8,9 @@ import java.util.*;
 
 public class Client {
 
-    private enum State{
-        LOGGED_OUT,
-        LOGGED_IN
-    }
-
     private static boolean preLogin = true;
     private final ServerFacade serverFacade;
     private final String serverURL;
-    private State state;
     private String authToken;
     private final Map<Integer, GameData> gameMap = new HashMap<>();
 
@@ -26,27 +20,103 @@ public class Client {
     }
 
     public String eval(String input) throws ResponseException {
-        var tokens = input.toLowerCase().split(" ");
-        String cmd = (tokens.length > 0) ? tokens[0] : "help";;
+        var tokens = input.split(" ");
+        String cmd = (tokens.length > 0) ? tokens[0].toLowerCase() : "help";
         String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
         if (preLogin) {
             return switch (cmd) {
-                case "register" -> register(params);
-                case "login" -> login(params);
-                case "quit" -> "quit";
-                default -> helpPreLogin();
-            };
-        } else {
-            return switch (cmd) {
-                case "logout" -> logout(params);
-                case "list" -> listGames(params);
-                case "create" -> createGame(params);
-                case "join" -> playGame(params);
-                case "observe" -> observeGame(params);
-                case "quit" -> "quit";
-                default -> helpPostLogin();
+                case "register" -> {
+                    if (params.length != 3) {
+                        yield "Invalid format. Usage: register <USERNAME> <PASSWORD> <EMAIL>";
+                    } else {
+                        yield register(params);
+                    }
+                }
+                case "login" -> {
+                    if (params.length != 2) {
+                        yield "Invalid format. Usage: login <USERNAME> <PASSWORD>";
+                    } else {
+                        yield login(params);
+                    }
+                }
+                case "quit" -> {
+                    if(params.length == 0){
+                        yield "quit";
+                    }
+                    else{
+                        yield "Invalid format. Just type 'quit' with no arguments.";
+                    }
+                }
+
+                case "help" -> {
+                    if (params.length == 0) {
+                        yield helpPreLogin();
+                    } else {
+                        yield "Invalid format. Just type 'help' with no arguments.";
+                    }
+                }
+                default -> "Invalid Entry. Type 'help' to learn about valid options.";
             };
         }
+        else {
+            return switch (cmd) {
+                case "logout" -> {
+                    if (params.length != 0) {
+                        yield "Invalid format. Just type 'logout'.";
+                    } else {
+                        yield logout(params);
+                    }
+                }
+                case "list" -> {
+                    if (params.length != 0) {
+                        yield "Invalid format. Just type 'list'.";
+                    } else {
+                        yield listGames(params);
+                    }
+                }
+                case "create" -> {
+                    if (params.length != 1) {
+                        yield "Invalid format. Usage: create <GAME_NAME>";
+                    } else {
+                        yield createGame(params);
+                    }
+                }
+                case "join" -> {
+                    if (params.length != 2) {
+                        yield "Invalid format. Usage: join <GAME_NUMBER> [WHITE|BLACK]";
+                    } else {
+                        yield playGame(params);
+                    }
+                }
+                case "observe" -> {
+                    if (params.length != 1) {
+                        yield "Invalid format. Usage: observe <GAME_NUMBER>";
+                    } else {
+                        yield observeGame(params);
+                    }
+                }
+                case "quit" -> {
+                    if(params.length == 0){
+                        yield "quit";
+                    }
+                    else{
+                        yield "Invalid format. Just type 'quit' with no arguments.";
+                    }
+                }
+                case "help" -> {
+                    if (params.length == 0) {
+                        yield helpPostLogin();
+                    } else {
+                        yield "Invalid format. Just type 'help' with no arguments.";
+                    }
+                }
+                default -> "Invalid Entry. Type 'help' to learn about valid options.";
+            };
+        }
+    }
+
+    public boolean isLogin(){
+        return preLogin;
     }
 
     public String register(String... params) throws ResponseException {
@@ -126,8 +196,8 @@ public class Client {
     }
 
     public String playGame(String... params) throws ResponseException {
-        ChessGame.TeamColor color = ChessGame.TeamColor.valueOf(params[0].toUpperCase());
-        int gameNumber = Integer.parseInt(params[1]);
+        int gameNumber = Integer.parseInt(params[0]);
+        ChessGame.TeamColor color = ChessGame.TeamColor.valueOf(params[1].toUpperCase());
         GameData gameInfo = gameMap.get(gameNumber);
         int gameID = gameInfo.gameID();
         ChessGame newGame = gameInfo.game();
@@ -149,9 +219,10 @@ public class Client {
 
     public String helpPostLogin(){
             return """
-                    create <NAME> - a game
+                    create <NAME> - a game to be played
                     list - games
-                    join <ID> [WHITE|BLACK] - a game
+                    join <ID> [WHITE|BLACK] - play a game
+                    observe <ID> - watch a game
                     logout - when you finish playing
                     quit - playing chess
                     help - with possible commands

@@ -1,6 +1,7 @@
 package ui;
 
 import javax.management.Notification;
+import java.util.Objects;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -24,9 +25,11 @@ public class Repl {
             printPrompt();
             String line = scanner.nextLine();
 
-            try{
+            try {
                 result = client.eval(line);
-                System.out.print(SET_TEXT_COLOR_BLUE + result);
+                if (!Objects.equals(result, "quit")) {
+                    System.out.print(SET_TEXT_COLOR_BLUE + result);
+                }
             }
             catch(Throwable e){
                 var msg = e.toString();
@@ -35,7 +38,7 @@ public class Repl {
             }
         }
 
-        System.out.println();
+        System.out.println("You won't get any better if you leave");
     }
 
     public void notify(Notification notification){
@@ -44,6 +47,7 @@ public class Repl {
     }
 
     public void printPrompt(){
-        System.out.println("\n" + "\u001b" + "0m" + ">>> " + SET_TEXT_COLOR_GREEN);
+        String promptState = client.isLogin() ? "LOGGED_OUT" : "LOGGED_IN";
+        System.out.println("\n" + "\u001b" + promptState + ">>> " + SET_TEXT_COLOR_GREEN);
     }
 }
