@@ -142,7 +142,7 @@ public class Client {
         String password = params[1];
         LoginRequest loginRequest = new LoginRequest(username, password);
         LoginResult loginResult = serverFacade.login(loginRequest);
-        this.authToken = loginResult.authToken();
+        authToken = loginResult.authToken();
         if(loginResult.authToken() != null){
             preLogin = false;
             return "Login Successful";

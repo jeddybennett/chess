@@ -43,6 +43,6 @@ public class Repl {
 
     public void printPrompt(){
         String promptState = client.isLogin() ? "LOGGED_OUT" : "LOGGED_IN";
-        System.out.println("\n" + "\u001b" + promptState + ">>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + "\u001b" + promptState + ">>> " + SET_TEXT_COLOR_GREEN);
     }
 }
