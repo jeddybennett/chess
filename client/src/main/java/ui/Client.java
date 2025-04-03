@@ -9,6 +9,7 @@ import java.util.*;
 public class Client {
 
     private static boolean preLogin = true;
+    private static boolean inGame = false;
     private final ServerFacade serverFacade;
     private final String serverURL;
     private String authToken;
@@ -58,7 +59,53 @@ public class Client {
                 default -> "Invalid Entry. Type 'help' to learn about valid options.";
             };
         }
-        else {
+        else if (inGame) {
+            return switch (cmd) {
+                case "redraw" -> {
+                    if (params.length != 0) {
+                        yield "Invalid Format. Type 'redraw' to redraw the current board.";
+                    } else {
+                        redrawGame(params);
+                    }
+                }
+
+                case "leave" -> {
+                    if (params.length == 0) {
+                        leaveGame(params);
+                    } else {
+                        yield "Invalid Format. Type 'leave' to leave the current game.";
+                    }
+
+                }
+
+                case "move" -> {
+                    if (params.length == 2){
+                        movePiece(params);
+                    }
+                    else{
+                        yield "Invalid Format. Type 'move' with the starting and ending square";
+                    }
+                }
+
+                case "resign" -> {
+                    if(params.length == 0){
+                        resignGame(params);
+                    }
+                    else{
+                        yield "Invalid Format. Type 'resign' in order to LOSE";
+                    }
+                }
+
+                case "highlight" -> {
+                    if(params.length == 2){
+                        highlightMoves(params);
+                    }
+                    else{
+                        yield "Invalid Format. Type 'highlight' followed by the location of the piece you want to learn about";
+                    }
+                }
+            };
+        }else {
             return switch (cmd) {
                 case "logout" -> {
                     if (params.length != 0) {
@@ -217,6 +264,8 @@ public class Client {
         return "Now Observing Game";
     }
 
+    public String
+
     public String helpPostLogin(){
             return """
                     create <NAME> - a game to be played
@@ -237,5 +286,15 @@ public class Client {
                Print this message: "help"
                """;
         }
+
+    public String helpInGame() {
+        return """
+                Redraw the current chess board: "redraw"
+                Leave the current game: "leave"
+                Make a move: "move" <Starting Square> <Ending Square>
+                Resign but remain in the game: "resign"
+                Highlight possible moves of an individual piece: "highlight" <Square where piece is located>
+                """;
+    }
 
 }
