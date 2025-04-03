@@ -11,8 +11,9 @@ import static ui.EscapeSequences.*;
 
 public class ChessBoard {
 
+    private static final PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
     public static void drawBoard(chess.ChessBoard board, boolean isWhite){
-        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+
         out.print(ERASE_SCREEN);
         drawHeaders(out, isWhite);
         if(isWhite){
@@ -95,6 +96,13 @@ public class ChessBoard {
             System.out.print(pieceSymbol);
         }
         out.print(RESET_BG_COLOR);
+    }
+
+    public static void highlightPieceMoves(chess.ChessGame game, chess.ChessPosition position){
+        out.print(SET_BG_COLOR_YELLOW);
+        chess.ChessBoard chessBoard = game.getBoard();
+
+
     }
 
 

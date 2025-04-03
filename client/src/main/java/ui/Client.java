@@ -1,5 +1,5 @@
 package ui;
-import chess.ChessGame;
+import chess.*;
 import exception.ResponseException;
 import model.*;
 import net.ServerFacade;
@@ -13,6 +13,8 @@ public class Client {
     private final ServerFacade serverFacade;
     private final String serverURL;
     private String authToken;
+    private ChessGame activateGame;
+    private static boolean isWhite = false;
     private final Map<Integer, GameData> gameMap = new HashMap<>();
 
     public Client(String serverURL, Repl repl) {
@@ -62,17 +64,19 @@ public class Client {
         else if (inGame) {
             return switch (cmd) {
                 case "redraw" -> {
-                    if (params.length != 0) {
+                    if (params.length == 0) {
+                        yield redrawGame(params);
+                    }
+                    else {
                         yield "Invalid Format. Type 'redraw' to redraw the current board.";
-                    } else {
-                        redrawGame(params);
                     }
                 }
 
                 case "leave" -> {
                     if (params.length == 0) {
-                        leaveGame(params);
-                    } else {
+                        yield leaveGame(params);
+                    }
+                    else {
                         yield "Invalid Format. Type 'leave' to leave the current game.";
                     }
 
@@ -80,7 +84,7 @@ public class Client {
 
                 case "move" -> {
                     if (params.length == 2){
-                        movePiece(params);
+                        yield movePiece(params);
                     }
                     else{
                         yield "Invalid Format. Type 'move' with the starting and ending square";
@@ -89,7 +93,7 @@ public class Client {
 
                 case "resign" -> {
                     if(params.length == 0){
-                        resignGame(params);
+                        yield resignGame(params);
                     }
                     else{
                         yield "Invalid Format. Type 'resign' in order to LOSE";
@@ -98,14 +102,25 @@ public class Client {
 
                 case "highlight" -> {
                     if(params.length == 2){
-                        highlightMoves(params);
+                        yield highlightMoves(params);
                     }
                     else{
                         yield "Invalid Format. Type 'highlight' followed by the location of the piece you want to learn about";
                     }
                 }
+
+                case "help" -> {
+                    if(params.length == 0){
+                        yield helpInGame();
+                    }
+                    else{
+                        yield "Invalid Format. Type 'help' to learn about valid options";
+                    }
+                }
+                default -> "Invalid Entry. Type 'help' to learn about valid options.";
             };
-        }else {
+        }
+        else {
             return switch (cmd) {
                 case "logout" -> {
                     if (params.length != 0) {
@@ -251,8 +266,10 @@ public class Client {
         chess.ChessBoard board = newGame.getBoard();
         JoinGameRequest joinGameRequest = new JoinGameRequest(authToken, color, gameID);
         serverFacade.joinGame(joinGameRequest);
-        boolean isWhite = !color.equals(ChessGame.TeamColor.BLACK);
+        isWhite = !color.equals(ChessGame.TeamColor.BLACK);
         ChessBoard.drawBoard(board, isWhite);
+        inGame = true;
+        activateGame = newGame;
         return "Game joined Successfully";
     }
 
@@ -264,7 +281,54 @@ public class Client {
         return "Now Observing Game";
     }
 
-    public String
+    public String redrawGame(String... params){
+        chess.ChessBoard chessBoard = activateGame.getBoard();
+        ChessBoard.drawBoard(chessBoard, isWhite);
+        return "board has been redrawn";
+    }
+
+    public String leaveGame(String... params){
+        inGame = false;
+        return "ugh";
+    }
+
+    public String movePiece(String... params) throws InvalidMoveException {
+        chess.ChessBoard board = activateGame.getBoard();
+        String start = params[0];
+        String finish = params[1];
+        int rowStart = getRowFromString(start);
+        int colStart = getColFromString(start);
+
+        int rowFinish = getRowFromString(finish);
+        int colFinish = getColFromString(finish);
+
+        chess.ChessPosition startPosition = new ChessPosition(rowStart, colStart);
+        chess.ChessPosition endPosition = new ChessPosition(rowFinish, colFinish);
+
+        //Make sure to check if pawn is being promoted or not, and if so, prompt user to
+        // specify which promotion piece they want
+
+        chess.ChessPiece myPiece = board.getPiece(startPosition);
+
+        chess.ChessMove newMove = new ChessMove(startPosition, endPosition, null);
+        activateGame.makeMove(newMove);
+
+        return "move made successfully";
+    }
+
+    public String resignGame(String... params){
+        inGame = false;
+        return "YOU LOST, HAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAH";
+    }
+
+    public String highlightMoves(String... params){
+        int rowNum = getRowFromString(params[0]);
+        int colNum = getColFromString(params[0]);
+
+        chess.ChessPosition position = new ChessPosition(rowNum, colNum);
+        ChessBoard.highlightPieceMoves(activateGame, position);
+        return "look and make a move now";
+    }
 
     public String helpPostLogin(){
             return """
@@ -295,6 +359,14 @@ public class Client {
                 Resign but remain in the game: "resign"
                 Highlight possible moves of an individual piece: "highlight" <Square where piece is located>
                 """;
+    }
+
+    public static int getRowFromString(String square){
+        return 8 - Character.getNumericValue(square.charAt(1));
+    }
+
+    public static int getColFromString(String square){
+        return square.charAt(square.charAt(0)) - 'a';
     }
 
 }
