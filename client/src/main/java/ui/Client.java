@@ -22,7 +22,7 @@ public class Client {
         this.serverURL = serverURL;
     }
 
-    public String eval(String input) throws ResponseException {
+    public String eval(String input) throws ResponseException, InvalidMoveException {
         var tokens = input.split(" ");
         String cmd = (tokens.length > 0) ? tokens[0].toLowerCase() : "help";
         String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
@@ -83,10 +83,9 @@ public class Client {
                 }
 
                 case "move" -> {
-                    if (params.length == 2){
+                    if (params.length == 2 || params.length == 3){
                         yield movePiece(params);
-                    }
-                    else{
+                    } else{
                         yield "Invalid Format. Type 'move' with the starting and ending square";
                     }
                 }
@@ -296,21 +295,32 @@ public class Client {
         chess.ChessBoard board = activateGame.getBoard();
         String start = params[0];
         String finish = params[1];
+        ChessPiece.PieceType promotionPiece = null;
+        if(params.length == 3){
+            promotionPiece = ChessPiece.PieceType.valueOf(params[2].toUpperCase());
+        }
         int rowStart = getRowFromString(start);
         int colStart = getColFromString(start);
 
         int rowFinish = getRowFromString(finish);
         int colFinish = getColFromString(finish);
 
-        chess.ChessPosition startPosition = new ChessPosition(rowStart, colStart);
-        chess.ChessPosition endPosition = new ChessPosition(rowFinish, colFinish);
+        ChessPosition startPosition = new ChessPosition(rowStart, colStart);
+        ChessPosition endPosition = new ChessPosition(rowFinish, colFinish);
 
         //Make sure to check if pawn is being promoted or not, and if so, prompt user to
         // specify which promotion piece they want
+        ChessPiece myPiece = board.getPiece(startPosition);
+        ChessMove newMove;
+        if(myPiece.getPieceType().equals(ChessPiece.PieceType.PAWN) && (rowFinish == 0 || rowFinish == 7)){
+            newMove = new ChessMove(startPosition, endPosition, promotionPiece);
+            String message
+        }
+        else{
+            newMove = new ChessMove(startPosition, endPosition, null);
+        }
 
-        chess.ChessPiece myPiece = board.getPiece(startPosition);
 
-        chess.ChessMove newMove = new ChessMove(startPosition, endPosition, null);
         activateGame.makeMove(newMove);
 
         return "move made successfully";
@@ -325,7 +335,7 @@ public class Client {
         int rowNum = getRowFromString(params[0]);
         int colNum = getColFromString(params[0]);
 
-        chess.ChessPosition position = new ChessPosition(rowNum, colNum);
+        ChessPosition position = new ChessPosition(rowNum, colNum);
         ChessBoard.highlightPieceMoves(activateGame, position);
         return "look and make a move now";
     }
@@ -355,7 +365,7 @@ public class Client {
         return """
                 Redraw the current chess board: "redraw"
                 Leave the current game: "leave"
-                Make a move: "move" <Starting Square> <Ending Square>
+                Make a move: "move" <Starting Square> <Ending Square> <Promotion Piece if promoting pawn>
                 Resign but remain in the game: "resign"
                 Highlight possible moves of an individual piece: "highlight" <Square where piece is located>
                 """;
