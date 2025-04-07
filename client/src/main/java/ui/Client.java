@@ -13,7 +13,7 @@ public class Client {
     private final ServerFacade serverFacade;
     private final String serverURL;
     private String authToken;
-    private ChessGame activateGame;
+    private ChessGame activeGame;
     private static boolean isWhite = false;
     private final Map<Integer, GameData> gameMap = new HashMap<>();
 
@@ -268,7 +268,7 @@ public class Client {
         isWhite = !color.equals(ChessGame.TeamColor.BLACK);
         ChessBoard.drawBoard(board, isWhite);
         inGame = true;
-        activateGame = newGame;
+        activeGame = newGame;
         return "Game joined Successfully";
     }
 
@@ -281,7 +281,7 @@ public class Client {
     }
 
     public String redrawGame(String... params){
-        chess.ChessBoard chessBoard = activateGame.getBoard();
+        chess.ChessBoard chessBoard = activeGame.getBoard();
         ChessBoard.drawBoard(chessBoard, isWhite);
         return "board has been redrawn";
     }
@@ -292,7 +292,7 @@ public class Client {
     }
 
     public String movePiece(String... params) throws InvalidMoveException {
-        chess.ChessBoard board = activateGame.getBoard();
+        chess.ChessBoard board = activeGame.getBoard();
         String start = params[0];
         String finish = params[1];
         ChessPiece.PieceType promotionPiece = null;
@@ -312,18 +312,19 @@ public class Client {
         // specify which promotion piece they want
         ChessPiece myPiece = board.getPiece(startPosition);
         ChessMove newMove;
+        String message;
         if(myPiece.getPieceType().equals(ChessPiece.PieceType.PAWN) && (rowFinish == 0 || rowFinish == 7)){
             newMove = new ChessMove(startPosition, endPosition, promotionPiece);
-            String message
+            assert promotionPiece != null;
+            message = "Promoting your pawn to " + promotionPiece.toString();
         }
         else{
             newMove = new ChessMove(startPosition, endPosition, null);
+            message = "move made successfully";
         }
+        activeGame.makeMove(newMove);
 
-
-        activateGame.makeMove(newMove);
-
-        return "move made successfully";
+        return message;
     }
 
     public String resignGame(String... params){
@@ -336,7 +337,7 @@ public class Client {
         int colNum = getColFromString(params[0]);
 
         ChessPosition position = new ChessPosition(rowNum, colNum);
-        ChessBoard.highlightPieceMoves(activateGame, position);
+        ChessBoard.highlightPieceMoves(activeGame, position);
         return "look and make a move now";
     }
 

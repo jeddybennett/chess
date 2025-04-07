@@ -1,11 +1,13 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 
 import static ui.EscapeSequences.*;
 
@@ -101,6 +103,9 @@ public class ChessBoard {
     public static void highlightPieceMoves(chess.ChessGame game, chess.ChessPosition position){
         out.print(SET_BG_COLOR_YELLOW);
         chess.ChessBoard chessBoard = game.getBoard();
+        Collection<ChessMove> moves = game.validMoves(position);
+        ChessPiece myPiece = chessBoard.getPiece(position);
+        String pieceType = myPiece.getPieceType().toString();
 
 
     }
