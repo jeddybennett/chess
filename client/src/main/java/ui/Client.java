@@ -100,7 +100,7 @@ public class Client {
                 }
 
                 case "highlight" -> {
-                    if(params.length == 2){
+                    if(params.length == 1){
                         yield highlightMoves(params);
                     }
                     else{
@@ -178,6 +178,10 @@ public class Client {
 
     public boolean isLogin(){
         return preLogin;
+    }
+
+    public boolean isInGame(){
+        return inGame;
     }
 
     public String register(String... params) throws ResponseException {
@@ -323,6 +327,7 @@ public class Client {
             message = "move made successfully";
         }
         activeGame.makeMove(newMove);
+        ui.ChessBoard.drawBoard(activeGame.getBoard(), isWhite);
 
         return message;
     }
@@ -337,7 +342,7 @@ public class Client {
         int colNum = getColFromString(params[0]);
 
         ChessPosition position = new ChessPosition(rowNum, colNum);
-        ChessBoard.highlightPieceMoves(activeGame, position);
+        ChessBoard.highlightPieceMoves(activeGame, position, isWhite);
         return "look and make a move now";
     }
 
@@ -373,11 +378,21 @@ public class Client {
     }
 
     public static int getRowFromString(String square){
-        return 8 - Character.getNumericValue(square.charAt(1));
+        System.out.println("row string");
+        int rank = square.charAt(1) - '0';
+        if(!isWhite){
+            return 7 - rank;
+        }
+        return rank;
     }
 
     public static int getColFromString(String square){
-        return square.charAt(square.charAt(0)) - 'a';
+        System.out.println("column string");
+        int rank = square.charAt(0) - 'a';
+        if(!isWhite){
+            rank = 7 - rank;
+        }
+        return rank;
     }
 
 }

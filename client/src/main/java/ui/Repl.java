@@ -43,6 +43,9 @@ public class Repl {
 
     public void printPrompt(){
         String promptState = client.isLogin() ? "LOGGED_OUT" : "LOGGED_IN";
+        if(!client.isLogin()){
+            promptState = client.isInGame() ? "IN_GAME" : "LOGGED_IN";
+        }
         System.out.print("\n" + "\u001b" + promptState + ">>> " + SET_TEXT_COLOR_GREEN);
     }
 }

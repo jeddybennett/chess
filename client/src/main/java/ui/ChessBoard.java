@@ -14,10 +14,13 @@ import static ui.EscapeSequences.*;
 public class ChessBoard {
 
     private static final PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+    private static boolean shouldHighlight = false;
+    private static Collection<ChessPosition> currentValidMoves = null;
+
     public static void drawBoard(chess.ChessBoard board, boolean isWhite){
 
         out.print(ERASE_SCREEN);
-        drawHeaders(out, isWhite);
+        drawHeaders(isWhite);
         if(isWhite){
             for(int row = 8; row>=1;row --){
                 drawRow(out, board, row, true);
@@ -28,21 +31,21 @@ public class ChessBoard {
                 drawRow(out, board, row, false);
             }
         }
-        drawHeaders(out, isWhite);
+        drawHeaders(isWhite);
     }
-    private static void drawHeaders(PrintStream out, boolean isWhite) {
-        out.print("   ");
+    private static void drawHeaders(boolean isWhite) {
+        ChessBoard.out.print("   ");
         if (isWhite) {
             for (char letter = 'a'; letter <= 'h'; letter++) {
-                out.print(" " + letter + " ");
+                ChessBoard.out.print(" " + letter + " ");
             }
         }
         else {
             for(char letter = 'h'; letter>='a';letter--){
-                out.print(" " + letter + " ");
+                ChessBoard.out.print(" " + letter + " ");
             }
         }
-        out.println();
+        ChessBoard.out.println();
     }
 
 
@@ -64,18 +67,25 @@ public class ChessBoard {
     private static void drawSquare(PrintStream out, chess.ChessBoard board, int row, int col){
         ChessPosition position = new ChessPosition(row, col);
         ChessPiece piece = board.getPiece(position);
+
+
         boolean whiteSquare = ((row + col) % 2 == 0);
+
         if(whiteSquare){
-            drawWhiteSquare(out, piece);
+            drawWhiteSquare(out, piece, position);
         }
         else{
-            drawBlackSquare(out, piece);
+            drawBlackSquare(out, piece, position);
         }
     }
 
-    private static void drawBlackSquare(PrintStream out, ChessPiece piece){
+    private static void drawBlackSquare(PrintStream out, ChessPiece piece, ChessPosition position){
         //check if you need to draw a piece in this method
         System.out.print(SET_BG_COLOR_BLUE);
+        boolean highlightSquare = shouldHighlight && currentValidMoves!=null && currentValidMoves.contains(position);
+        if(highlightSquare){
+            out.print(SET_BG_COLOR_YELLOW);
+        }
         if(piece == null){
             out.print(EMPTY);
         }
@@ -86,10 +96,14 @@ public class ChessBoard {
         out.print(RESET_BG_COLOR);
     }
 
-    private static void drawWhiteSquare(PrintStream out, ChessPiece piece){
+    private static void drawWhiteSquare(PrintStream out, ChessPiece piece, ChessPosition position){
         //pass in a matrix of where the pieces are located
         //have draw BlackSquares and drawWhiteSquares look up positions in the matrix
         out.print(SET_BG_COLOR_RED);
+        boolean highlightSquare = shouldHighlight && currentValidMoves!=null && currentValidMoves.contains(position);
+        if(highlightSquare){
+            out.print(SET_BG_COLOR_YELLOW);
+        }
         if(piece == null){
             System.out.print(EMPTY);
         }
@@ -100,14 +114,18 @@ public class ChessBoard {
         out.print(RESET_BG_COLOR);
     }
 
-    public static void highlightPieceMoves(chess.ChessGame game, chess.ChessPosition position){
-        out.print(SET_BG_COLOR_YELLOW);
+    public static void highlightPieceMoves(chess.ChessGame game, chess.ChessPosition position, boolean isWhite){
         chess.ChessBoard chessBoard = game.getBoard();
         Collection<ChessMove> moves = game.validMoves(position);
-        ChessPiece myPiece = chessBoard.getPiece(position);
-        String pieceType = myPiece.getPieceType().toString();
+        // Assuming getEndPosition() gives the destination
 
+        currentValidMoves = moves.stream()
+                .map(ChessMove::getEndPosition) // Assuming getEndPosition() gives the destination
+                .toList();
 
+        shouldHighlight = true;
+        drawBoard(chessBoard, isWhite);
+        shouldHighlight = false;
     }
 
 
