@@ -55,6 +55,7 @@ public class ServerFacade {
         return clientCommunicator.makeRequest(method, path, null, ListGameResult.class, authToken);
     }
 
+
     public void clear() throws ResponseException {
         var path = "/db";
         var method = "DELETE";

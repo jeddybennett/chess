@@ -378,21 +378,11 @@ public class Client {
     }
 
     public static int getRowFromString(String square){
-        System.out.println("row string");
-        int rank = square.charAt(1) - '0';
-        if(!isWhite){
-            return 7 - rank;
-        }
-        return rank;
+        return Character.getNumericValue(square.charAt(1));
     }
 
     public static int getColFromString(String square){
-        System.out.println("column string");
-        int rank = square.charAt(0) - 'a';
-        if(!isWhite){
-            rank = 7 - rank;
-        }
-        return rank;
+        return square.charAt(0) - 'a' + 1;
     }
 
 }
