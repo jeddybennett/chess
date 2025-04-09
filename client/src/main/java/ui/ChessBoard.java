@@ -16,6 +16,7 @@ public class ChessBoard {
     private static final PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
     private static boolean shouldHighlight = false;
     private static Collection<ChessPosition> currentValidMoves = null;
+    private static chess.ChessPosition mySquare = null;
 
     public static void drawBoard(chess.ChessBoard board, boolean isWhite){
 
@@ -82,7 +83,13 @@ public class ChessBoard {
     private static void drawBlackSquare(PrintStream out, ChessPiece piece, ChessPosition position){
         //check if you need to draw a piece in this method
         System.out.print(SET_BG_COLOR_BLUE);
-        boolean highlightSquare = shouldHighlight && currentValidMoves!=null && currentValidMoves.contains(position);
+        boolean highlightSquare = shouldHighlight && currentValidMoves!=null &&
+                currentValidMoves.contains(position);
+
+        boolean chosenSquare = mySquare != null && mySquare.equals(position);
+        if(chosenSquare){
+            out.print(SET_BG_COLOR_MAGENTA);
+        }
         if(highlightSquare){
             out.print(SET_BG_COLOR_YELLOW);
         }
@@ -123,9 +130,11 @@ public class ChessBoard {
                 .map(ChessMove::getEndPosition) // Assuming getEndPosition() gives the destination
                 .toList();
 
+        mySquare = position;
         shouldHighlight = true;
         drawBoard(chessBoard, isWhite);
         shouldHighlight = false;
+        mySquare = null;
     }
 
 
