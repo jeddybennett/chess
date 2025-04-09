@@ -3,10 +3,15 @@ import chess.*;
 import exception.ResponseException;
 import model.*;
 import net.ServerFacade;
+import websocket.ServerMessageObserver;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
+import websocket.messages.ErrorMessage;
 
 import java.util.*;
 
-public class Client {
+public class Client implements ServerMessageObserver {
 
     private static boolean preLogin = true;
     private static boolean inGame = false;
@@ -383,6 +388,17 @@ public class Client {
 
     public static int getColFromString(String square){
         return square.charAt(0) - 'a' + 1;
+    }
+
+    @Override
+    public void notify(ServerMessage message){
+        switch(message.getServerMessageType()){
+            case NOTIFICATION -> displayNotification((NotificationMessage) message).getMessage());
+            case ERROR -> displayError(((ErrorMessage) message).getError());
+            case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
+
+        }
+
     }
 
 }
