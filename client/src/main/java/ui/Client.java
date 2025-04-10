@@ -35,27 +35,21 @@ public class Client{
                     if (params.length != 3) {
                         yield "Invalid format. Usage: register <USERNAME> <PASSWORD> <EMAIL>";
                     } else {
-                        yield register(params);}
-                }
+                        yield register(params);}}
                 case "login" -> {
                     if (params.length != 2) {
                         yield "Invalid format. Usage: login <USERNAME> <PASSWORD>";}
                     else {
-                        yield login(params);}
-                }
+                        yield login(params);}}
                 case "quit" -> {if(params.length == 0){
                         yield "quit";}
                     else{
-                        yield "Invalid format. Just type 'quit' with no arguments.";}
-                }
+                        yield "Invalid format. Just type 'quit' with no arguments.";}}
                 case "help" -> {if (params.length == 0) {
-                        yield helpPreLogin();
-                } else {
-                        yield "Invalid format. Just type 'help' with no arguments.";}
-                }
-                default -> "Invalid Entry. Type 'help' to learn about valid options.";
-            };
-        }
+                        yield helpPreLogin();}
+                else {
+                        yield "Invalid format. Just type 'help' with no arguments.";}}
+                default -> "Invalid Entry. Type 'help' to learn about valid options.";};}
         else if (inGame) {
             return switch (cmd) {
                 case "redraw" -> {
@@ -66,88 +60,69 @@ public class Client{
                     }}
                 case "leave" -> {
                     if (params.length == 0) {
-                        yield leaveGame(params);
-                    }
+                        yield leaveGame(params);}
                     else {
-                        yield "Invalid Format. Type 'leave' to leave the current game.";
-                    }
-                }
+                        yield "Invalid Format. Type 'leave' to leave the current game.";}}
                 case "move" -> {
                     if (params.length == 2 || params.length == 3){
-                        yield movePiece(params);
-                    } else{
-                        yield "Invalid Format. Type 'move' with the starting and ending square";
-                    }}
+                        yield movePiece(params);}
+                    else{
+                        yield "Invalid Format. Type 'move' with the starting and ending square";}}
                 case "resign" -> {
                     if(params.length == 0){
                         yield resignGame(params);
                     }
                     else{
-                        yield "Invalid Format. Type 'resign' in order to LOSE";
-                    }}
+                        yield "Invalid Format. Type 'resign' in order to LOSE";}}
                 case "highlight" -> {
                     if(params.length == 1){
-                        yield highlightMoves(params);
-                    }
+                        yield highlightMoves(params);}
                     else{
-                        yield "Invalid Format. Type 'highlight' followed by the location of the piece you want to learn about";
-                    }}
+                        yield "Invalid Format. Type 'highlight' followed by the location of the piece you want to learn about";}}
                 case "help" -> {
                     if(params.length == 0){
-                        yield helpInGame();
-                    }
+                        yield helpInGame();}
                     else{
-                        yield "Invalid Format. Type 'help' to learn about valid options";
-                    }}
-                default -> "Invalid Entry. Type 'help' to learn about valid options.";};
-        }
+                        yield "Invalid Format. Type 'help' to learn about valid options";}}
+                default -> "Invalid Entry. Type 'help' to learn about valid options.";};}
         else {
             return switch (cmd) {
                 case "logout" -> {
                     if (params.length != 0) {
                         yield "Invalid format. Just type 'logout'.";
                     } else {
-                        yield logout(params);
-                    }}
+                        yield logout(params);}}
                 case "list" -> {
                     if (params.length != 0) {
                         yield "Invalid format. Just type 'list'.";
                     } else {
-                        yield listGames(params);
-                    }}
+                        yield listGames(params);}}
                 case "create" -> {
                     if (params.length != 1) {
                         yield "Invalid format. Usage: create <GAME_NAME>";
                     } else {
-                        yield createGame(params);
-                    }}
+                        yield createGame(params);}}
                 case "join" -> {
                     if (params.length != 2) {
                         yield "Invalid format. Usage: join <GAME_NUMBER> [WHITE|BLACK]";
                     } else {
-                        yield playGame(params);
-                    }}
+                        yield playGame(params);}}
                 case "observe" -> {
                     if (params.length != 1) {
                         yield "Invalid format. Usage: observe <GAME_NUMBER>";
                     } else {
-                        yield observeGame(params);
-                    }}
+                        yield observeGame(params);}}
                 case "quit" -> {
                     if(params.length == 0){
-                        yield "quit";
-                    }
+                        yield "quit";}
                     else{
-                        yield "Invalid format. Just type 'quit' with no arguments.";
-                    }}
+                        yield "Invalid format. Just type 'quit' with no arguments.";}}
                 case "help" -> {
                     if (params.length == 0) {
                         yield helpPostLogin();
                     } else {
-                        yield "Invalid format. Just type 'help' with no arguments.";
-                    }}
-                default -> "Invalid Entry. Type 'help' to learn about valid options.";
-            };}
+                        yield "Invalid format. Just type 'help' with no arguments.";}}
+                default -> "Invalid Entry. Type 'help' to learn about valid options.";};}
     }
 
     public boolean isLogin(){
