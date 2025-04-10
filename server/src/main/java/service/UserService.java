@@ -88,4 +88,17 @@ public class UserService {
             throw new ResponseException(500, "Error:" + exception.getMessage());
         }
     }
+
+    public static String getUsername(String authToken) throws ResponseException {
+        try{
+            AuthData authData = authDAO.getAuth(authToken);
+            if(authData == null){
+                throw new Exception("Invalid Auth Token");
+            }
+            return authData.username();
+        }
+        catch (Exception exception) {
+            throw new ResponseException(500, "Error:" + exception.getMessage());
+        }
+    }
 }

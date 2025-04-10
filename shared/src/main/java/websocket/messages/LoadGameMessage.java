@@ -2,14 +2,14 @@ package websocket.messages;
 
 import java.util.Objects;
 
-public class LoadGameMessage<T> extends ServerMessage{
-    private final T game;
-    public LoadGameMessage(T game) {
+public class LoadGameMessage extends ServerMessage{
+    private final Object game;
+    public LoadGameMessage(Object game) {
         super(ServerMessageType.LOAD_GAME);
             this.game = game;
     }
 
-    public T getGame(){
+    public Object getGame(){
         return game;
 
     }
@@ -22,7 +22,7 @@ public class LoadGameMessage<T> extends ServerMessage{
         if (!super.equals(o)) {
             return false;
         }
-        LoadGameMessage<?> that = (LoadGameMessage<?>) o;
+        LoadGameMessage that = (LoadGameMessage) o;
         return Objects.equals(game, that.game);
     }
 

@@ -101,4 +101,8 @@ public class GameService {
             throw new ResponseException(500, "Error: " + exception.getMessage());
         }
     }
+
+    public void updateGame(int gameID, GameData gameData) throws SQLException, ResponseException, DataAccessException {
+        gameDAO.updateGame(gameID, gameData);
+    }
 }
