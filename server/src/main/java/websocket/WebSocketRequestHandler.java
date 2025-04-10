@@ -1,8 +1,10 @@
 package websocket;
 
 import chess.*;
+import com.google.gson.JsonObject;
 import exception.ResponseException;
 import model.GameData;
+import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -16,6 +18,7 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 
 import java.io.IOException;
+import java.nio.channels.MembershipKey;
 
 @WebSocket
 public class WebSocketRequestHandler {
@@ -23,6 +26,7 @@ public class WebSocketRequestHandler {
     private final Gson gson = new Gson();
     private final UserService userService;
     private final GameService gameService;
+    private Boolean didResign = false;
 
     public WebSocketRequestHandler(ConnectionManager connectionManager, UserService userService, GameService gameService) {
         this.connectionManager = connectionManager;
@@ -33,17 +37,35 @@ public class WebSocketRequestHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String msg){
         try{
-            UserGameCommand command = gson.fromJson(msg, UserGameCommand.class);
-            String username = getUsername(command.getAuthToken());
+            JsonObject json = gson.fromJson(msg, JsonObject.class);
+            String type = json.get("commandType").getAsString();
+            UserGameCommand.CommandType commandType = UserGameCommand.CommandType.valueOf(type);
+            switch(commandType){
 
-            //saveSession(command.getGameID());
-
-            switch(command.getCommandType()){
-                case CONNECT -> connect(session, username, command);
-                case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
-                case LEAVE -> leaveGame(session, username, command);
-                case RESIGN -> resign(session, username, command);
-                default -> sendMessage(session, "Error: " + command.getCommandType().toString() + " ");
+                case CONNECT -> {
+                    UserGameCommand command = gson.fromJson(msg, UserGameCommand.class);
+                    String username = getUsername(command.getAuthToken());
+                    connect(session, username, command);
+                }
+                case MAKE_MOVE -> {
+                    MakeMoveCommand command = gson.fromJson(msg, MakeMoveCommand.class);
+                    String username = getUsername(command.getAuthToken());
+                    makeMove(session, username, command);
+                }
+                case LEAVE -> {
+                    UserGameCommand command = gson.fromJson(msg, UserGameCommand.class);
+                    String username = getUsername(command.getAuthToken());
+                    leaveGame(session, username, command);
+                }
+                case RESIGN -> {
+                    UserGameCommand command = gson.fromJson(msg, UserGameCommand.class);
+                    String username = getUsername(command.getAuthToken());
+                    resign(session, username, command);
+                }
+                default -> {
+                    UserGameCommand command = gson.fromJson(msg, UserGameCommand.class);
+                    sendMessage(session, "Error: " + command.getCommandType().toString() + " ");
+                }
             }
         }
         catch (Exception exception){
@@ -53,7 +75,8 @@ public class WebSocketRequestHandler {
 
     private void connect(Session session, String username, UserGameCommand command){
         try {
-            connectionManager.add(username, session);
+            didResign = false;
+            connectionManager.add(username, session, command.getGameID());
             GameData gameData = gameService.getGame(command.getGameID());
             String message;
             if (gameData.whiteUsername().equals(username)) {
@@ -63,10 +86,10 @@ public class WebSocketRequestHandler {
             } else {
                 message = username + " " + "is observing the game";
             }
-//            LoadGameMessage gameMessage = new LoadGameMessage(gameData);
-//            connectionManager.broadcastGame(gameMessage);
+            LoadGameMessage gameMessage = new LoadGameMessage(gameData);
+            connectionManager.broadcastUser(username, gameMessage);
             NotificationMessage notificationMessage = new NotificationMessage(message);
-            connectionManager.broadcastString(username, notificationMessage);
+            connectionManager.broadcastString(command.getGameID() ,username, notificationMessage);
         } catch (Exception e) {
             sendMessage(session, "Error: " + e.getMessage());
         }
@@ -78,23 +101,43 @@ public class WebSocketRequestHandler {
             GameData gameData = gameService.getGame(command.getGameID());
             ChessMove chessMove = command.getMove();
             ChessGame chessGame = gameData.game();
-            chessGame.makeMove(chessMove);
+            ChessGame.TeamColor correctTurn = chessGame.getTeamTurn();
+            ChessGame.TeamColor playerColor = null;
+            System.out.println(correctTurn);
+            if(username.equals(gameData.whiteUsername())){
+                playerColor = ChessGame.TeamColor.WHITE;
+            }
+            else if(username.equals(gameData.blackUsername())){
+                playerColor = ChessGame.TeamColor.BLACK;
+            }
 
+            if(!correctTurn.equals(playerColor)){
+                sendMessage(session, "Error: not your turn");
+                return;
+            }
+
+            if(didResign){
+                sendMessage(session, "Error: no more moves can be made after a resignation");
+                return;
+            }
             ChessPosition startPosition = chessMove.getStartPosition();
             ChessPosition endPosition = chessMove.getEndPosition();
             ChessBoard chessBoard = chessGame.getBoard();
             ChessPiece chessPiece = chessBoard.getPiece(startPosition);
 
-            GameData updatedGame = new GameData(gameData.gameID(), gameData.blackUsername(),
-                    gameData.whiteUsername(), gameData.gameName(), chessGame);
+            chessGame.makeMove(chessMove);
+            GameData updatedGame = new GameData(gameData.gameID(),
+                    gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), chessGame);
             gameService.updateGame(command.getGameID(), updatedGame);
-
-            LoadGameMessage gameMessage = new LoadGameMessage(updatedGame);
-            connectionManager.broadcastGame(gameMessage);
 
             NotificationMessage notificationMessage = new NotificationMessage(username + " has moved "
                     + chessPiece.getPieceType().toString() + " to: " + endPosition.toString());
-            connectionManager.broadcastString(username, notificationMessage);
+            connectionManager.broadcastString(command.getGameID() ,username, notificationMessage);
+
+            LoadGameMessage gameMessage = new LoadGameMessage(updatedGame);
+            connectionManager.broadcastGame(command.getGameID(),gameMessage);
+
+
         } catch (Exception e) {
             sendMessage(session, "Error: " + e.getMessage());
         }
@@ -107,7 +150,7 @@ public class WebSocketRequestHandler {
                     + "has left the game");
             GameData currentGame = gameService.getGame(command.getGameID());
             GameData updatedGame;
-            if(currentGame.whiteUsername().equals(username)){
+            if(username.equals(currentGame.whiteUsername())){
                 updatedGame = new GameData(currentGame.gameID(), null, currentGame.blackUsername(),
                         currentGame.gameName(), currentGame.game());
             }
@@ -116,7 +159,7 @@ public class WebSocketRequestHandler {
                         currentGame.gameName(), currentGame.game());
             }
             gameService.updateGame(command.getGameID(), updatedGame);
-            connectionManager.broadcastString(username, notificationMessage);
+            connectionManager.broadcastString(command.getGameID(),username, notificationMessage);
         } catch (Exception e) {
             sendMessage(session, "Error: " + e.getMessage());
         }
@@ -124,12 +167,18 @@ public class WebSocketRequestHandler {
 
     private void resign(Session session, String username, UserGameCommand command){
         try {
-            int gameID = command.getGameID();
-            GameData gameData = gameService.getGame(gameID);
-            gameData.game().setTeamTurn(null);
-            gameService.updateGame(gameID, gameData);
+            if(didResign){
+                sendMessage(session, "Error: player has already resigned");
+                return;
+            }
+            GameData currentGame = gameService.getGame(command.getGameID());
+            if(!username.equals(currentGame.blackUsername()) && !username.equals(currentGame.whiteUsername())){
+                sendMessage(session, "Error: Observer cannot resign");
+                return;
+            }
+            didResign = true;
             NotificationMessage message = new NotificationMessage(username + " has resigned from the game");
-            connectionManager.broadcastString(null, message);
+            connectionManager.broadcastString(command.getGameID(),null, message);
         } catch (Exception e) {
             sendMessage(session, "Error: " + e.getMessage());
         }

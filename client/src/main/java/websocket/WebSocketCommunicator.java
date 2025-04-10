@@ -10,9 +10,9 @@ import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
 
-public class WebSocketCommunicator {
+public class WebSocketCommunicator{
 
-    static Session session;
+    private static Session session;
 
     public static void leave(String authToken, int gameID) throws ResponseException {
         try {
@@ -22,6 +22,10 @@ public class WebSocketCommunicator {
         } catch (Exception e) {
             throw new ResponseException(500, e.getMessage());
         }
+    }
+
+    public static void setSession(Session session){
+        WebSocketCommunicator.session = session;
     }
 
     public static void connect(String authToken, int gameID) throws ResponseException{

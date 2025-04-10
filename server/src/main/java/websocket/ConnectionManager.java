@@ -14,8 +14,8 @@ import websocket.messages.ServerMessage;
 public class ConnectionManager{
     public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
 
-    public void add(String username, Session session) {
-        var connection = new Connection(username, session);
+    public void add(String username, Session session, int gameID) {
+        var connection = new Connection(username, session, gameID);
         connections.put(username, connection);
     }
 
@@ -23,11 +23,12 @@ public class ConnectionManager{
         connections.remove(username);
     }
 
-    public void broadcastString(String excludeUsername, NotificationMessage notification) throws IOException {
+    public void broadcastString(int gameID, String excludeUsername, NotificationMessage notification) throws IOException {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
+            System.out.println(c.username);
             if (c.session.isOpen()) {
-                if (!c.username.equals(excludeUsername)) {
+                if (!c.username.equals(excludeUsername) && c.gameID == gameID) {
                     c.send(new Gson().toJson(notification));
                 }
             } else {
@@ -41,29 +42,32 @@ public class ConnectionManager{
         }
     }
 
-    public void broadcastUser(String username, String error) throws IOException, ResponseException {
+    public void broadcastUser(String username, LoadGameMessage loadGameMessage) throws ResponseException {
         try{
             var connection = connections.get(username);
-            connection.send(error);
+            connection.send(new Gson().toJson(loadGameMessage));
         }
         catch(Exception e){
             throw new ResponseException(500, e.getMessage());
         }
     }
 
-    public void broadcastGame(LoadGameMessage loadGameMessage) throws IOException {
+    public void broadcastGame(int gameID, LoadGameMessage loadGameMessage) throws IOException {
         for(var c: connections.values()){
             if(c.session.isOpen()){
                 try {
-                    c.send(new Gson().toJson(loadGameMessage.getGame()));
+                    // Send the complete LoadGameMessage object, not just the game
+                    if(c.gameID == gameID){
+                        c.send(new Gson().toJson(loadGameMessage));
+                    }
+
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            }
-            else{
+            } else {
                 connections.remove(c.username);
             }
         }
-
     }
+
 }
