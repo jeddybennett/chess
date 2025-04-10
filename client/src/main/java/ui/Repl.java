@@ -1,5 +1,11 @@
 package ui;
 
+import websocket.ServerMessageObserver;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
+
 import javax.management.Notification;
 import java.util.Objects;
 import java.util.Scanner;
@@ -7,7 +13,7 @@ import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
 
-public class Repl {
+public class Repl implements ServerMessageObserver {
     private final Client client;
 
     public Repl(String serverURL) {
@@ -47,5 +53,26 @@ public class Repl {
             promptState = client.isInGame() ? "IN_GAME" : "LOGGED_IN";
         }
         System.out.print("\n" + "\u001b" + promptState + ">>> " + SET_TEXT_COLOR_GREEN);
+    }
+
+    @Override
+    public void notify(ServerMessage message){
+        switch(message.getServerMessageType()){
+            case NOTIFICATION -> displayNotification(((NotificationMessage) message).getMessage());
+            case ERROR -> displayError(((ErrorMessage) message).getError());
+            case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
+
+        }
+    }
+    public void displayError(String error){
+
+    }
+
+    public void displayNotification(String notification){
+
+    }
+
+    public void loadGame(Object game){
+
     }
 }

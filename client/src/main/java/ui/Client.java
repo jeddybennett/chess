@@ -12,9 +12,8 @@ import websocket.messages.ErrorMessage;
 
 import java.util.*;
 
-public class Client implements ServerMessageObserver {
+public class Client{
 
-    private static final SCANNER = new Scanner();
     private static boolean preLogin = true;
     private static boolean inGame = false;
     private final ServerFacade serverFacade;
@@ -341,7 +340,7 @@ public class Client implements ServerMessageObserver {
 
     public String resignGame(String... params){
         inGame = false;
-        String userAnswer = SCANNER.nextLine().toUpperCase();
+        //String userAnswer = SCANNER.nextLine().toUpperCase();
         return "YOU LOST, HAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAH";
     }
 
@@ -392,15 +391,6 @@ public class Client implements ServerMessageObserver {
     public static int getColFromString(String square){
         return square.charAt(0) - 'a' + 1;
     }
-
-    @Override
-    public void notify(ServerMessage message){
-        switch(message.getServerMessageType()){
-            case NOTIFICATION -> displayNotification((NotificationMessage) message).getMessage());
-            case ERROR -> displayError(((ErrorMessage) message).getError());
-            case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
-
-        }
 
     }
 

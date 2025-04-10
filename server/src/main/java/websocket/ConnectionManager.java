@@ -1,5 +1,6 @@
 package websocket;
 import com.google.gson.Gson;
+import exception.ResponseException;
 import org.eclipse.jetty.websocket.api.Session;
 
 import java.io.IOException;
@@ -7,6 +8,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 public class ConnectionManager{
@@ -21,12 +23,12 @@ public class ConnectionManager{
         connections.remove(username);
     }
 
-    public void broadcastString(String excludeUsername, String notification) throws IOException {
+    public void broadcastString(String excludeUsername, NotificationMessage notification) throws IOException {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
                 if (!c.username.equals(excludeUsername)) {
-                    c.send(notification);
+                    c.send(new Gson().toJson(notification));
                 }
             } else {
                 removeList.add(c);
@@ -39,11 +41,21 @@ public class ConnectionManager{
         }
     }
 
+    public void broadcastUser(String username, String error) throws IOException, ResponseException {
+        try{
+            var connection = connections.get(username);
+            connection.send(error);
+        }
+        catch(Exception e){
+            throw new ResponseException(500, e.getMessage());
+        }
+    }
+
     public void broadcastGame(LoadGameMessage loadGameMessage) throws IOException {
         for(var c: connections.values()){
             if(c.session.isOpen()){
                 try {
-                    c.send(new Gson().toJson(loadGameMessage));
+                    c.send(new Gson().toJson(loadGameMessage.getGame()));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
