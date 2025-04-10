@@ -1,5 +1,6 @@
 package ui;
 
+import exception.ResponseException;
 import model.GameData;
 import websocket.ServerMessageObserver;
 import websocket.messages.ErrorMessage;
@@ -17,8 +18,8 @@ import static ui.EscapeSequences.*;
 public class Repl implements ServerMessageObserver {
     private final Client client;
 
-    public Repl(String serverURL) {
-        client = new Client(serverURL, this);
+    public Repl(String serverURL, ServerMessageObserver observer) throws ResponseException {
+        client = new Client(serverURL, this, observer);
     }
 
     public void run(){

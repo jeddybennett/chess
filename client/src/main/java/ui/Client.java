@@ -4,10 +4,7 @@ import exception.ResponseException;
 import model.*;
 import net.ServerFacade;
 import websocket.ServerMessageObserver;
-import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
-import websocket.messages.ErrorMessage;
+import websocket.WebSocketFacade;
 
 
 import java.util.*;
@@ -17,15 +14,15 @@ public class Client{
     private static boolean preLogin = true;
     private static boolean inGame = false;
     private final ServerFacade serverFacade;
-    private final String serverURL;
     private String authToken;
-    private static ChessGame activeGame;
+    private static GameData activeGame;
     private static boolean isWhite = false;
     private final Map<Integer, GameData> gameMap = new HashMap<>();
+    private final WebSocketFacade webSocketFacade;
 
-    public Client(String serverURL, Repl repl) {
+    public Client(String serverURL, Repl repl, ServerMessageObserver observer) throws ResponseException {
         serverFacade = new ServerFacade(serverURL);
-        this.serverURL = serverURL;
+        webSocketFacade = new WebSocketFacade(serverURL, observer);
     }
 
     public String eval(String input) throws ResponseException, InvalidMoveException {
@@ -278,31 +275,33 @@ public class Client{
         isWhite = !color.equals(ChessGame.TeamColor.BLACK);
         ChessBoard.drawBoard(board, isWhite);
         inGame = true;
-        activeGame = newGame;
+        activeGame = gameInfo;
         return "Game joined Successfully";
     }
 
-    public String observeGame(String... params){
+    public String observeGame(String... params) throws ResponseException {
         int gameNumber = Integer.parseInt(params[0]);
         GameData gameInfo = gameMap.get(gameNumber);
         chess.ChessBoard board = gameInfo.game().getBoard();
+        webSocketFacade.connect(authToken, gameInfo.gameID());
         ChessBoard.drawBoard(board, true);
         return "Now Observing Game";
     }
 
     public static String redrawGame(){
-        chess.ChessBoard chessBoard = activeGame.getBoard();
+        chess.ChessBoard chessBoard = activeGame.game().getBoard();
         ChessBoard.drawBoard(chessBoard, isWhite);
         return "board has been redrawn";
     }
 
-    public String leaveGame(String... params){
+    public String leaveGame(String... params) throws ResponseException {
         inGame = false;
-        return "ugh";
+        webSocketFacade.leave(authToken, activeGame.gameID());
+        return "don't leave me";
     }
 
-    public String movePiece(String... params) throws InvalidMoveException {
-        chess.ChessBoard board = activeGame.getBoard();
+    public String movePiece(String... params) throws InvalidMoveException, ResponseException {
+        chess.ChessBoard board = activeGame.game().getBoard();
         String start = params[0];
         String finish = params[1];
         ChessPiece.PieceType promotionPiece = null;
@@ -326,26 +325,28 @@ public class Client{
         if(myPiece.getPieceType().equals(ChessPiece.PieceType.PAWN) && (rowFinish == 1|| rowFinish == 8)){
             newMove = new ChessMove(startPosition, endPosition, promotionPiece);
             assert promotionPiece != null;
-            message = "Promoting your pawn to " + promotionPiece.toString();
+            message = "Promoting your pawn to " + promotionPiece;
         }
         else{
             newMove = new ChessMove(startPosition, endPosition, null);
             message = "move made successfully";
         }
-        activeGame.makeMove(newMove);
-        ui.ChessBoard.drawBoard(activeGame.getBoard(), isWhite);
+        activeGame.game().makeMove(newMove);
+        webSocketFacade.makeMove(authToken, activeGame.gameID(), newMove);
+        ChessBoard.drawBoard(activeGame.game().getBoard(), isWhite);
 
         return message;
     }
 
     public static void updateGame(GameData game) {
-        activeGame = game.game();
+        activeGame = game;
     }
 
 
-    public String resignGame(String... params){
-        inGame = false;
+    public String resignGame(String... params) throws ResponseException {
+        //prompt user for
         //String userAnswer = SCANNER.nextLine().toUpperCase();
+        webSocketFacade.resign(authToken, activeGame.gameID());
         return "YOU LOST, HAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAH";
     }
 
@@ -354,7 +355,7 @@ public class Client{
         int colNum = getColFromString(params[0]);
 
         ChessPosition position = new ChessPosition(rowNum, colNum);
-        ChessBoard.highlightPieceMoves(activeGame, position, isWhite);
+        ChessBoard.highlightPieceMoves(activeGame.game(), position, isWhite);
         return "look and make a move now";
     }
 

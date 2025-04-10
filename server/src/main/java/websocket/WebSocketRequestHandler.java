@@ -37,7 +37,7 @@ public class WebSocketRequestHandler {
             switch(command.getCommandType()){
                 case CONNECT -> connect(session, username, command);
                 case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
-                case LEAVE -> leaveGame(session, username);
+                case LEAVE -> leaveGame(session, username, command);
                 case RESIGN -> resign(session, username, command);
                 default -> sendMessage(session, "Error: " + command.getCommandType().toString() + " ");
             }
@@ -59,8 +59,8 @@ public class WebSocketRequestHandler {
             } else {
                 message = username + " " + "is observing the game";
             }
-            LoadGameMessage gameMessage = new LoadGameMessage(gameData);
-            connectionManager.broadcastGame(gameMessage);
+//            LoadGameMessage gameMessage = new LoadGameMessage(gameData);
+//            connectionManager.broadcastGame(gameMessage);
             NotificationMessage notificationMessage = new NotificationMessage(message);
             connectionManager.broadcastString(username, notificationMessage);
         } catch (Exception e) {
@@ -96,11 +96,22 @@ public class WebSocketRequestHandler {
         }
     }
 
-    private void leaveGame(Session session, String username){
+    private void leaveGame(Session session, String username, UserGameCommand command){
         try {
             connectionManager.remove(username);
             NotificationMessage notificationMessage = new NotificationMessage(username + " "
                     + "has left the game");
+            GameData currentGame = gameService.getGame(command.getGameID());
+            GameData updatedGame;
+            if(currentGame.whiteUsername().equals(username)){
+                updatedGame = new GameData(currentGame.gameID(), null, currentGame.blackUsername(),
+                        currentGame.gameName(), currentGame.game());
+            }
+            else{
+                updatedGame = new GameData(currentGame.gameID(), currentGame.whiteUsername(), null,
+                        currentGame.gameName(), currentGame.game());
+            }
+            gameService.updateGame(command.getGameID(), updatedGame);
             connectionManager.broadcastString(username, notificationMessage);
         } catch (Exception e) {
             sendMessage(session, "Error: " + e.getMessage());
