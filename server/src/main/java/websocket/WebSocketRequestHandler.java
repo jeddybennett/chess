@@ -4,6 +4,8 @@ import chess.*;
 import exception.ResponseException;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import service.GameService;
 import service.UserService;
 import websocket.commands.MakeMoveCommand;
@@ -15,6 +17,7 @@ import websocket.messages.NotificationMessage;
 
 import java.io.IOException;
 
+@WebSocket
 public class WebSocketRequestHandler {
     private final ConnectionManager connectionManager;
     private final Gson gson = new Gson();
@@ -27,6 +30,7 @@ public class WebSocketRequestHandler {
         this.gameService = gameService;
     }
 
+    @OnWebSocketMessage
     public void onMessage(Session session, String msg){
         try{
             UserGameCommand command = gson.fromJson(msg, UserGameCommand.class);

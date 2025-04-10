@@ -333,7 +333,6 @@ public class Client{
         }
         activeGame.game().makeMove(newMove);
         webSocketFacade.makeMove(authToken, activeGame.gameID(), newMove);
-        ChessBoard.drawBoard(activeGame.game().getBoard(), isWhite);
 
         return message;
     }

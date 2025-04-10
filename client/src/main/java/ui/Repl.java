@@ -18,8 +18,8 @@ import static ui.EscapeSequences.*;
 public class Repl implements ServerMessageObserver {
     private final Client client;
 
-    public Repl(String serverURL, ServerMessageObserver observer) throws ResponseException {
-        client = new Client(serverURL, this, observer);
+    public Repl(String serverURL) throws ResponseException {
+        client = new Client(serverURL, this, this);
     }
 
     public void run(){

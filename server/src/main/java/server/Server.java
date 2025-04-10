@@ -6,6 +6,8 @@ import service.ClearService;
 import service.GameService;
 import service.UserService;
 import spark.*;
+import websocket.ConnectionManager;
+import websocket.WebSocketRequestHandler;
 
 
 public class Server {
@@ -16,7 +18,7 @@ public class Server {
         UserDAO userDAO;
         AuthDAO authDAO;
 
-        Spark.staticFiles.location("web");
+        Spark.staticFiles.location("public");
         try {
             gameDAO = new MySQLGameDAO();
             userDAO = new MySQLUserDAO();
@@ -29,13 +31,17 @@ public class Server {
         ClearService clearService = new ClearService(gameDAO, authDAO, userDAO);
         GameService gameService = new GameService(gameDAO, authDAO);
         UserService userService = new UserService(userDAO, authDAO);
+        ConnectionManager connectionManager = new ConnectionManager();
 
         UserHandler userHandler = new UserHandler(userService);
         GameHandler gameHandler = new GameHandler(gameService);
         ClearHandler clearHandler = new ClearHandler(clearService);
         ExceptionHandler exceptionHandler = new ExceptionHandler();
+        WebSocketRequestHandler webSocketRequestHandler = new WebSocketRequestHandler(connectionManager, userService,
+                gameService);
 
         // Register your endpoints and handle exceptions here.
+        Spark.webSocket("/ws", webSocketRequestHandler);
         Spark.post("/user", userHandler::registerHandler);
         Spark.post("/session", userHandler::loginHandler);
         Spark.delete("/session", userHandler::logoutHandler);

@@ -1,6 +1,7 @@
 import chess.*;
 import exception.ResponseException;
 import ui.*;
+import websocket.ServerMessageObserver;
 
 public class Main {
     public static void main(String[] args) throws ResponseException {
