@@ -20,9 +20,9 @@ public class Client{
     private final Map<Integer, GameData> gameMap = new HashMap<>();
     private final WebSocketFacade webSocketFacade;
 
-    public Client(String serverURL, Repl repl, ServerMessageObserver observer) throws ResponseException {
+    public Client(String serverURL, ServerMessageObserver repl) throws ResponseException {
         serverFacade = new ServerFacade(serverURL);
-        webSocketFacade = new WebSocketFacade(serverURL, observer);
+        webSocketFacade = new WebSocketFacade(serverURL, repl);
     }
 
     public String eval(String input) throws ResponseException, InvalidMoveException {

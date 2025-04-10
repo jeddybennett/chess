@@ -22,14 +22,13 @@ import java.nio.channels.MembershipKey;
 
 @WebSocket
 public class WebSocketRequestHandler {
-    private final ConnectionManager connectionManager;
+    private final ConnectionManager connectionManager = new ConnectionManager();
     private final Gson gson = new Gson();
     private final UserService userService;
     private final GameService gameService;
     private Boolean didResign = false;
 
-    public WebSocketRequestHandler(ConnectionManager connectionManager, UserService userService, GameService gameService) {
-        this.connectionManager = connectionManager;
+    public WebSocketRequestHandler(UserService userService, GameService gameService) {
         this.userService = userService;
         this.gameService = gameService;
     }
@@ -103,7 +102,6 @@ public class WebSocketRequestHandler {
             ChessGame chessGame = gameData.game();
             ChessGame.TeamColor correctTurn = chessGame.getTeamTurn();
             ChessGame.TeamColor playerColor = null;
-            System.out.println(correctTurn);
             if(username.equals(gameData.whiteUsername())){
                 playerColor = ChessGame.TeamColor.WHITE;
             }

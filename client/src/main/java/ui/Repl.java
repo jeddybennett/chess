@@ -19,7 +19,7 @@ public class Repl implements ServerMessageObserver {
     private final Client client;
 
     public Repl(String serverURL) throws ResponseException {
-        client = new Client(serverURL, this, this);
+        client = new Client(serverURL, this);
     }
 
     public void run(){

@@ -11,6 +11,7 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 import javax.websocket.*;
+import javax.websocket.server.ServerEndpoint;
 import java.net.URI;
 
 public class WebSocketFacade extends Endpoint{
@@ -18,14 +19,19 @@ public class WebSocketFacade extends Endpoint{
     Session session;
     ServerMessageObserver observer;
 
+
     public WebSocketFacade(String url, ServerMessageObserver observer) throws ResponseException {
         try{
             url = url.replace("http", "ws");
+            System.out.println(url);
+
             URI socketURI = new URI(url + "/ws");
             this.observer = observer;
-
+            System.out.println(socketURI);
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+            System.out.println("Initialized");
             this.session = container.connectToServer(this, socketURI);
+            System.out.println("Made it here");
             WebSocketCommunicator.setSession(this.session);
 
             //set message handler
@@ -33,6 +39,7 @@ public class WebSocketFacade extends Endpoint{
                 @Override
                 public void onMessage(String message){
                     ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                    System.out.println("Entered");
                     observer.notify(serverMessage);
                 }
             });
