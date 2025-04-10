@@ -12,14 +12,13 @@ import java.util.Collection;
 import static ui.EscapeSequences.*;
 
 public class ChessBoard {
-
-    private static final PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+    
     private static boolean shouldHighlight = false;
     private static Collection<ChessPosition> currentValidMoves = null;
     private static chess.ChessPosition mySquare = null;
 
     public static void drawBoard(chess.ChessBoard board, boolean isWhite){
-
+        PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
         drawHeaders(isWhite);
         if(isWhite){
