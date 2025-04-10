@@ -89,7 +89,7 @@ public class UserService {
         }
     }
 
-    public static String getUsername(String authToken) throws ResponseException {
+    public String getUsername(String authToken) throws ResponseException {
         try{
             AuthData authData = authDAO.getAuth(authToken);
             if(authData == null){

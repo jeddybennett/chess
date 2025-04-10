@@ -9,10 +9,12 @@ import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 import websocket.messages.ErrorMessage;
 
+
 import java.util.*;
 
 public class Client implements ServerMessageObserver {
 
+    private static final SCANNER = new Scanner();
     private static boolean preLogin = true;
     private static boolean inGame = false;
     private final ServerFacade serverFacade;
@@ -322,7 +324,7 @@ public class Client implements ServerMessageObserver {
         ChessPiece myPiece = board.getPiece(startPosition);
         ChessMove newMove;
         String message;
-        if(myPiece.getPieceType().equals(ChessPiece.PieceType.PAWN) && (rowFinish == 0 || rowFinish == 7)){
+        if(myPiece.getPieceType().equals(ChessPiece.PieceType.PAWN) && (rowFinish == 1|| rowFinish == 8)){
             newMove = new ChessMove(startPosition, endPosition, promotionPiece);
             assert promotionPiece != null;
             message = "Promoting your pawn to " + promotionPiece.toString();
@@ -339,6 +341,7 @@ public class Client implements ServerMessageObserver {
 
     public String resignGame(String... params){
         inGame = false;
+        String userAnswer = SCANNER.nextLine().toUpperCase();
         return "YOU LOST, HAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAH";
     }
 

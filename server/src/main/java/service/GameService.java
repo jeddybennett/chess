@@ -105,4 +105,8 @@ public class GameService {
     public void updateGame(int gameID, GameData gameData) throws SQLException, ResponseException, DataAccessException {
         gameDAO.updateGame(gameID, gameData);
     }
+
+    public GameData getGame(int gameID) throws SQLException, ResponseException, DataAccessException {
+        return gameDAO.getGame(gameID);
+    }
 }
