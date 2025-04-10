@@ -12,7 +12,7 @@ import java.util.Collection;
 import static ui.EscapeSequences.*;
 
 public class ChessBoard {
-    
+
     private static boolean shouldHighlight = false;
     private static Collection<ChessPosition> currentValidMoves = null;
     private static chess.ChessPosition mySquare = null;
@@ -20,7 +20,7 @@ public class ChessBoard {
     public static void drawBoard(chess.ChessBoard board, boolean isWhite){
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
-        drawHeaders(isWhite);
+        drawHeaders(isWhite, out);
         if(isWhite){
             for(int row = 8; row>=1;row --){
                 drawRow(out, board, row, true);
@@ -31,21 +31,21 @@ public class ChessBoard {
                 drawRow(out, board, row, false);
             }
         }
-        drawHeaders(isWhite);
+        drawHeaders(isWhite, out);
     }
-    private static void drawHeaders(boolean isWhite) {
-        ChessBoard.out.print("   ");
+    private static void drawHeaders(boolean isWhite, PrintStream out) {
+        out.print("   ");
         if (isWhite) {
             for (char letter = 'a'; letter <= 'h'; letter++) {
-                ChessBoard.out.print(" " + letter + " ");
+                out.print(" " + letter + " ");
             }
         }
         else {
             for(char letter = 'h'; letter>='a';letter--){
-                ChessBoard.out.print(" " + letter + " ");
+                out.print(" " + letter + " ");
             }
         }
-        ChessBoard.out.println();
+        out.println();
     }
 
 
