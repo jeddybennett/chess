@@ -1,5 +1,6 @@
 package ui;
 
+import model.GameData;
 import websocket.ServerMessageObserver;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -65,14 +66,15 @@ public class Repl implements ServerMessageObserver {
         }
     }
     public void displayError(String error){
-
+        System.out.println(SET_TEXT_COLOR_RED + error);
     }
 
     public void displayNotification(String notification){
-
+        System.out.println(SET_TEXT_COLOR_MAGENTA + notification);
     }
 
     public void loadGame(Object game){
-
+        Client.updateGame((GameData) game);
+        Client.redrawGame();
     }
 }

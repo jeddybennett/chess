@@ -1,8 +1,11 @@
 package websocket;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import model.GameData;
+import websocket.commands.MakeMoveCommand;
+import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -29,7 +32,6 @@ public class WebSocketFacade extends Endpoint{
                 @Override
                 public void onMessage(String message){
                     ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                    ServerMessage.ServerMessageType type = serverMessage.getServerMessageType();
                     observer.notify(serverMessage);
                 }
             });
@@ -42,5 +44,19 @@ public class WebSocketFacade extends Endpoint{
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void leave()
+    public void leave(String authToken, int gameID) throws ResponseException {
+        WebSocketCommunicator.leave(authToken, gameID);
+    }
+
+    public void connect(String authToken, int gameID) throws ResponseException {
+        WebSocketCommunicator.connect(authToken, gameID);
+    }
+
+    public void makeMove(String authToken, int gameID, ChessMove chessMove) throws ResponseException {
+        WebSocketCommunicator.makeMove(authToken, gameID, chessMove);
+    }
+
+    public void resign(String authToken, int gameID) throws ResponseException{
+        WebSocketCommunicator.resign(authToken, gameID);
+    }
 }

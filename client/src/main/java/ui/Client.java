@@ -19,7 +19,7 @@ public class Client{
     private final ServerFacade serverFacade;
     private final String serverURL;
     private String authToken;
-    private ChessGame activeGame;
+    private static ChessGame activeGame;
     private static boolean isWhite = false;
     private final Map<Integer, GameData> gameMap = new HashMap<>();
 
@@ -71,7 +71,7 @@ public class Client{
             return switch (cmd) {
                 case "redraw" -> {
                     if (params.length == 0) {
-                        yield redrawGame(params);
+                        yield redrawGame();
                     }
                     else {
                         yield "Invalid Format. Type 'redraw' to redraw the current board.";
@@ -290,7 +290,7 @@ public class Client{
         return "Now Observing Game";
     }
 
-    public String redrawGame(String... params){
+    public static String redrawGame(){
         chess.ChessBoard chessBoard = activeGame.getBoard();
         ChessBoard.drawBoard(chessBoard, isWhite);
         return "board has been redrawn";
@@ -337,6 +337,11 @@ public class Client{
 
         return message;
     }
+
+    public static void updateGame(GameData game) {
+        activeGame = game.game();
+    }
+
 
     public String resignGame(String... params){
         inGame = false;
@@ -393,5 +398,3 @@ public class Client{
     }
 
     }
-
-}
