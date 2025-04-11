@@ -460,6 +460,7 @@ public class Client{
                 Make a move: "move" <Starting Square> <Ending Square>
                 Resign but remain in the game: "resign"
                 Highlight possible moves of an individual piece: "highlight" <Square where piece is located>
+                help - with possible commands
                 """;
     }
 

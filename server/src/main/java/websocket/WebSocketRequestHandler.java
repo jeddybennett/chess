@@ -134,7 +134,7 @@ public class WebSocketRequestHandler {
             boolean inCheck = chessGame.isInCheck(opponentColor);
             NotificationMessage notificationMessage;
             if (inCheckmate) {
-                notificationMessage = new NotificationMessage(username + " is in Checkmate. THEY LOSE!!!");
+                notificationMessage = new NotificationMessage(opponentUsername + " is in Checkmate. THEY LOSE!!!");
                 connectionManager.broadcastString(command.getGameID(), null, notificationMessage);
             } else if (inStalemate) {
                 notificationMessage = new NotificationMessage("Stalemate. It's a draw");
@@ -143,8 +143,9 @@ public class WebSocketRequestHandler {
                 notificationMessage = new NotificationMessage(opponentUsername + " Is in Check! Protect the King");
                 connectionManager.broadcastString(command.getGameID(), null, notificationMessage);
             }
+            String chessPositionString = toChessNotation(endPosition);
             notificationMessage = new NotificationMessage(username + " has moved "
-                    + chessPiece.getPieceType().toString() + " to: " + endPosition.toString());
+                    + chessPiece.getPieceType().toString() + " to: " + chessPositionString);
             connectionManager.broadcastString(command.getGameID(), username, notificationMessage);
 
             gameService.updateGame(command.getGameID(), updatedGame);
@@ -218,5 +219,14 @@ public class WebSocketRequestHandler {
         catch(IOException e){
             System.err.println("Error sending message: " + e.getMessage());
         }
+    }
+
+    private static String toChessNotation(ChessPosition position) {
+        int row = position.getRow();
+        int col = position.getColumn();
+
+        char file = (char) ('a' + col - 1);
+
+        return file + Integer.toString(row);
     }
 }
