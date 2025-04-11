@@ -140,25 +140,24 @@ public class ChessBoard {
 
     private static String symbolPiece(ChessPiece piece){
         if(piece.getTeamColor() == ChessGame.TeamColor.WHITE){
-            String symbol = getPieceType(piece, BLACK_KING, BLACK_QUEEN, BLACK_ROOK, BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN);
+            String symbol = getPieceType(piece);
             return SET_TEXT_COLOR_WHITE + symbol + RESET_TEXT_COLOR;
         }
         else{
-            String symbol = getPieceType(piece, BLACK_KING, BLACK_QUEEN, BLACK_ROOK, BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN);
+            String symbol = getPieceType(piece);
             return SET_TEXT_COLOR_BLACK + symbol + RESET_TEXT_COLOR;
         }
 
     }
 
-    private static String getPieceType(ChessPiece piece, String blackKing, String blackQueen, String blackRook,
-                                       String blackBishop, String blackKnight, String blackPawn) {
+    private static String getPieceType(ChessPiece piece) {
         return switch (piece.getPieceType()) {
-            case KING -> blackKing;
-            case QUEEN -> blackQueen;
-            case ROOK -> blackRook;
-            case BISHOP -> blackBishop;
-            case KNIGHT -> blackKnight;
-            case PAWN -> blackPawn;
+            case KING -> EscapeSequences.BLACK_KING;
+            case QUEEN -> EscapeSequences.BLACK_QUEEN;
+            case ROOK -> EscapeSequences.BLACK_ROOK;
+            case BISHOP -> EscapeSequences.BLACK_BISHOP;
+            case KNIGHT -> EscapeSequences.BLACK_KNIGHT;
+            case PAWN -> EscapeSequences.BLACK_PAWN;
             case null -> EMPTY;
         };
     }
