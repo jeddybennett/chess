@@ -82,16 +82,7 @@ public class ChessBoard {
     private static void drawBlackSquare(PrintStream out, ChessPiece piece, ChessPosition position){
         //check if you need to draw a piece in this method
         System.out.print(SET_BG_COLOR_BLUE);
-        boolean highlightSquare = shouldHighlight && currentValidMoves!=null &&
-                currentValidMoves.contains(position);
-
-        boolean chosenSquare = mySquare != null && mySquare.equals(position);
-        if(chosenSquare){
-            out.print(SET_BG_COLOR_MAGENTA);
-        }
-        if(highlightSquare){
-            out.print(SET_BG_COLOR_YELLOW);
-        }
+        checkSquareHighlight(out, position);
         if(piece == null){
             out.print(EMPTY);
         }
@@ -106,10 +97,7 @@ public class ChessBoard {
         //pass in a matrix of where the pieces are located
         //have draw BlackSquares and drawWhiteSquares look up positions in the matrix
         out.print(SET_BG_COLOR_RED);
-        boolean highlightSquare = shouldHighlight && currentValidMoves!=null && currentValidMoves.contains(position);
-        if(highlightSquare){
-            out.print(SET_BG_COLOR_YELLOW);
-        }
+        checkSquareHighlight(out, position);
         if(piece == null){
             System.out.print(EMPTY);
         }
@@ -118,6 +106,18 @@ public class ChessBoard {
             System.out.print(pieceSymbol);
         }
         out.print(RESET_BG_COLOR);
+    }
+
+    private static void checkSquareHighlight(PrintStream out, ChessPosition position) {
+        boolean highlightSquare = shouldHighlight && currentValidMoves!=null &&
+                currentValidMoves.contains(position);
+        boolean chosenSquare = mySquare != null && mySquare.equals(position);
+        if(chosenSquare){
+            out.print(SET_BG_COLOR_MAGENTA);
+        }
+        if(highlightSquare){
+            out.print(SET_BG_COLOR_YELLOW);
+        }
     }
 
     public static void highlightPieceMoves(chess.ChessGame game, chess.ChessPosition position, boolean isWhite){
