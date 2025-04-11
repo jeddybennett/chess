@@ -130,6 +130,8 @@ public class WebSocketRequestHandler {
 
             NotificationMessage notificationMessage = new NotificationMessage(username + " has moved "
                     + chessPiece.getPieceType().toString() + " to: " + endPosition.toString());
+
+            
             connectionManager.broadcastString(command.getGameID() ,username, notificationMessage);
 
             LoadGameMessage gameMessage = new LoadGameMessage(updatedGame);

@@ -218,8 +218,8 @@ public class Client{
         chess.ChessBoard board = newGame.getBoard();
         JoinGameRequest joinGameRequest = new JoinGameRequest(authToken, color, gameID);
         serverFacade.joinGame(joinGameRequest);
+        webSocketFacade.connect(authToken, gameID);
         isWhite = !color.equals(ChessGame.TeamColor.BLACK);
-        ChessBoard.drawBoard(board, isWhite);
         inGame = true;
         activeGame = gameInfo;
         return "Game joined Successfully";
@@ -230,7 +230,6 @@ public class Client{
         GameData gameInfo = gameMap.get(gameNumber);
         chess.ChessBoard board = gameInfo.game().getBoard();
         webSocketFacade.connect(authToken, gameInfo.gameID());
-        ChessBoard.drawBoard(board, true);
         return "Now Observing Game";
     }
 
@@ -342,5 +341,4 @@ public class Client{
     public static int getColFromString(String square){
         return square.charAt(0) - 'a' + 1;
     }
-
-    }
+}

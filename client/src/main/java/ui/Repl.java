@@ -1,5 +1,6 @@
 package ui;
 
+import com.google.gson.Gson;
 import exception.ResponseException;
 import model.GameData;
 import websocket.ServerMessageObserver;
@@ -58,24 +59,37 @@ public class Repl implements ServerMessageObserver {
     }
 
     @Override
-    public void notify(ServerMessage message){
-        switch(message.getServerMessageType()){
-            case NOTIFICATION -> displayNotification(((NotificationMessage) message).getMessage());
-            case ERROR -> displayError(((ErrorMessage) message).getError());
-            case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
+    public void notify(ServerMessage serverMessage, String message){
+        ServerMessage.ServerMessageType type = serverMessage.getServerMessageType();
+        switch(type){
+            case NOTIFICATION -> displayNotification(new Gson().fromJson(message, NotificationMessage.class));
+            case ERROR -> displayError(new Gson().fromJson(message, ErrorMessage.class));
+            case LOAD_GAME -> loadGame(new Gson().fromJson(message, LoadGameMessage.class));
+            default -> System.out.println("Unrecognized Message Type");
 
         }
     }
-    public void displayError(String error){
-        System.out.println(SET_TEXT_COLOR_RED + error);
+    public void displayError(ErrorMessage message){
+        String errorMessage = message.getError();
+        System.out.println(SET_TEXT_COLOR_RED + errorMessage);
+        System.out.print("\u001B[49m");
+        System.out.print("\u001B[39m");
+        printPrompt();
     }
 
-    public void displayNotification(String notification){
-        System.out.println(SET_TEXT_COLOR_MAGENTA + notification);
+    public void displayNotification(NotificationMessage notification){
+        String notificationMessage = notification.getMessage();
+        System.out.println(SET_TEXT_COLOR_MAGENTA + notificationMessage);
+        System.out.print("\u001B[49m");
+        System.out.print("\u001B[39m");
+        printPrompt();
     }
 
-    public void loadGame(Object game){
-        Client.updateGame((GameData) game);
+    public void loadGame(LoadGameMessage message){
+        GameData game = message.getGame();
+        Client.updateGame(game);
+        System.out.println();
         Client.redrawGame();
+        printPrompt();
     }
 }

@@ -18,29 +18,26 @@ public class WebSocketFacade extends Endpoint{
 
     Session session;
     ServerMessageObserver observer;
+    WebSocketCommunicator webSocketCommunicator;
 
 
     public WebSocketFacade(String url, ServerMessageObserver observer) throws ResponseException {
         try{
             url = url.replace("http", "ws");
-            System.out.println(url);
 
             URI socketURI = new URI(url + "/ws");
             this.observer = observer;
-            System.out.println(socketURI);
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            System.out.println("Initialized");
-            this.session = container.connectToServer(this, socketURI);
-            System.out.println("Made it here");
-            WebSocketCommunicator.setSession(this.session);
 
+            this.session = container.connectToServer(this, socketURI);
+            this.webSocketCommunicator = new WebSocketCommunicator(this.session);
             //set message handler
+
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message){
                     ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                    System.out.println("Entered");
-                    observer.notify(serverMessage);
+                    observer.notify(serverMessage, message);
                 }
             });
         } catch (Exception e) {
@@ -53,18 +50,18 @@ public class WebSocketFacade extends Endpoint{
     }
 
     public void leave(String authToken, int gameID) throws ResponseException {
-        WebSocketCommunicator.leave(authToken, gameID);
+        webSocketCommunicator.leave(authToken, gameID);
     }
 
     public void connect(String authToken, int gameID) throws ResponseException {
-        WebSocketCommunicator.connect(authToken, gameID);
+        webSocketCommunicator.connect(authToken, gameID);
     }
 
     public void makeMove(String authToken, int gameID, ChessMove chessMove) throws ResponseException {
-        WebSocketCommunicator.makeMove(authToken, gameID, chessMove);
+        webSocketCommunicator.makeMove(authToken, gameID, chessMove);
     }
 
     public void resign(String authToken, int gameID) throws ResponseException{
-        WebSocketCommunicator.resign(authToken, gameID);
+        webSocketCommunicator.resign(authToken, gameID);
     }
 }
