@@ -140,10 +140,12 @@ public class ChessBoard {
 
     private static String symbolPiece(ChessPiece piece){
         if(piece.getTeamColor() == ChessGame.TeamColor.WHITE){
-            return getPieceType(piece, WHITE_KING, WHITE_QUEEN, WHITE_ROOK, WHITE_BISHOP, WHITE_KNIGHT, WHITE_PAWN);
+            String symbol = getPieceType(piece, BLACK_KING, BLACK_QUEEN, BLACK_ROOK, BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN);
+            return SET_TEXT_COLOR_WHITE + symbol + RESET_TEXT_COLOR;
         }
         else{
-            return getPieceType(piece, BLACK_KING, BLACK_QUEEN, BLACK_ROOK, BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN);
+            String symbol = getPieceType(piece, BLACK_KING, BLACK_QUEEN, BLACK_ROOK, BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN);
+            return SET_TEXT_COLOR_BLACK + symbol + RESET_TEXT_COLOR;
         }
 
     }

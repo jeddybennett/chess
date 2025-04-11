@@ -31,7 +31,6 @@ public class WebSocketCommunicator{
 
 
     public void connect(String authToken, int gameID) throws ResponseException{
-        System.out.println(gameID);
         try{
             var connectCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
             String message = new Gson().toJson(connectCommand);

@@ -95,7 +95,7 @@ public class WebSocketRequestHandler {
 
     }
 
-    private void makeMove(Session session, String username, MakeMoveCommand command){
+    private void makeMove(Session session, String username, MakeMoveCommand command) {
         try {
             GameData gameData = gameService.getGame(command.getGameID());
             ChessMove chessMove = command.getMove();
@@ -103,16 +103,15 @@ public class WebSocketRequestHandler {
             ChessGame.TeamColor correctTurn = chessGame.getTeamTurn();
             ChessGame.TeamColor playerColor = null;
             String opponentUsername = null;
-            if(username.equals(gameData.whiteUsername())){
+            if (username.equals(gameData.whiteUsername())) {
                 playerColor = ChessGame.TeamColor.WHITE;
                 opponentUsername = gameData.blackUsername();
-            }
-            else if(username.equals(gameData.blackUsername())){
+            } else if (username.equals(gameData.blackUsername())) {
                 playerColor = ChessGame.TeamColor.BLACK;
                 opponentUsername = gameData.whiteUsername();
             }
 
-            if(!correctTurn.equals(playerColor)){
+            if (!correctTurn.equals(playerColor)) {
                 sendMessage(session, "Error: not your turn");
                 return;
             }
@@ -120,7 +119,7 @@ public class WebSocketRequestHandler {
             ChessGame.TeamColor opponentColor = (correctTurn == ChessGame.TeamColor.WHITE)
                     ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
 
-            if(didResign){
+            if (didResign) {
                 sendMessage(session, "Error: no more moves can be made after a resignation");
                 return;
             }
@@ -137,27 +136,29 @@ public class WebSocketRequestHandler {
             boolean inStalemate = chessGame.isInStalemate(opponentColor);
             boolean inCheck = chessGame.isInCheck(opponentColor);
             NotificationMessage notificationMessage;
-            if(inCheckmate){
+            if (inCheckmate) {
                 notificationMessage = new NotificationMessage(username + " is in Checkmate. THEY LOSE!!!");
-                connectionManager.broadcastString(command.getGameID() ,null, notificationMessage);
-            }
-            else if(inStalemate){
+                connectionManager.broadcastString(command.getGameID(), null, notificationMessage);
+            } else if (inStalemate) {
                 notificationMessage = new NotificationMessage("Stalemate. It's a draw");
-                connectionManager.broadcastString(command.getGameID() ,null, notificationMessage);
-            }
-            else if(inCheck){
+                connectionManager.broadcastString(command.getGameID(), null, notificationMessage);
+            } else if (inCheck) {
                 notificationMessage = new NotificationMessage(opponentUsername + " Is in Check! Protect the King");
-                connectionManager.broadcastString(command.getGameID() ,null, notificationMessage);
+                connectionManager.broadcastString(command.getGameID(), null, notificationMessage);
             }
             notificationMessage = new NotificationMessage(username + " has moved "
-                        + chessPiece.getPieceType().toString() + " to: " + endPosition.toString());
-            connectionManager.broadcastString(command.getGameID() ,username, notificationMessage);
+                    + chessPiece.getPieceType().toString() + " to: " + endPosition.toString());
+            connectionManager.broadcastString(command.getGameID(), username, notificationMessage);
 
             gameService.updateGame(command.getGameID(), updatedGame);
             LoadGameMessage gameMessage = new LoadGameMessage(updatedGame);
-            connectionManager.broadcastGame(command.getGameID(),gameMessage);
+            connectionManager.broadcastGame(command.getGameID(), gameMessage);
         } catch (Exception e) {
-            sendMessage(session, "Error: " + e.getMessage());
+            if (e.getMessage().contains("turn")) {
+                sendMessage(session, "Error: not your turn");
+            } else {
+                sendMessage(session, "Error: invalid move, please type <starting square> <ending square>");
+            }
         }
     }
 

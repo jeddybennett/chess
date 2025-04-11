@@ -5,6 +5,8 @@ import model.*;
 import net.ServerFacade;
 import websocket.ServerMessageObserver;
 import websocket.WebSocketFacade;
+import static ui.EscapeSequences.*;
+import java.nio.charset.StandardCharsets;
 
 
 import java.util.*;
@@ -311,6 +313,10 @@ public class Client{
             //Make sure to check if pawn is being promoted or not, and if so, prompt user to
             // specify which promotion piece they want
             ChessPiece myPiece = board.getPiece(startPosition);
+            if (isObserve) {
+                webSocketFacade.makeMove(authToken, activeGame.gameID(), null);
+                return "";
+            }
             if (myPiece == null) {
                 return "There is not piece at selected starting Position. Choose another Position.";
             }
@@ -319,7 +325,19 @@ public class Client{
             String message;
             boolean isPawn = myPiece.getPieceType().equals(ChessPiece.PieceType.PAWN);
             boolean endOfBoard = (rowFinish == 1 || rowFinish == 8);
+
+
             if (isPawn && endOfBoard) {
+                ChessMove possibleMove = new ChessMove(startPosition, endPosition, ChessPiece.PieceType.QUEEN);
+                if(!activeGame.game().validMoves(startPosition).contains(possibleMove)){
+                    webSocketFacade.makeMove(authToken, activeGame.gameID(), null);
+                    return "";
+                }
+                ChessGame.TeamColor playerColor = isWhite ? ChessGame.TeamColor.WHITE: ChessGame.TeamColor.BLACK;
+                if(activeGame.game().getTeamTurn() != playerColor){
+                    webSocketFacade.makeMove(authToken, activeGame.gameID(), null);
+                    return "";
+                }
                 System.out.print("Which Piece do you want to promote to (Queen/Rook/Bishop/Knight): ");
                 Scanner scanner = new Scanner(System.in);
                 ChessPiece.PieceType promotionPiece;
@@ -348,7 +366,8 @@ public class Client{
             return message;
         }
         catch(Exception e){
-            return "Invalid Move. Please type <starting square> <ending square>";
+            webSocketFacade.makeMove(authToken, activeGame.gameID(), null);
+            return "";
         }
     }
 
@@ -358,6 +377,10 @@ public class Client{
 
 
     public String resignGame(String... params) throws ResponseException {
+        if(isObserve){
+            webSocketFacade.resign(authToken, activeGame.gameID());
+            return "";
+        }
         System.out.print("Are you sure you want to resign? (Y/N): ");
         Scanner scanner = new Scanner(System.in);
         while(true){
@@ -377,12 +400,25 @@ public class Client{
     }
 
     public String highlightMoves(String... params){
-        int rowNum = getRowFromString(params[0]);
-        int colNum = getColFromString(params[0]);
+        try {
+            int rowNum = getRowFromString(params[0]);
+            int colNum = getColFromString(params[0]);
 
-        ChessPosition position = new ChessPosition(rowNum, colNum);
-        ChessBoard.highlightPieceMoves(activeGame.game(), position, isWhite);
-        return "look and make a move now";
+            ChessPosition position = new ChessPosition(rowNum, colNum);
+            if(isObserve){
+                ChessBoard.highlightPieceMoves(activeGame.game(), position, true);
+            }
+            else{
+                ChessBoard.highlightPieceMoves(activeGame.game(), position, isWhite);
+            }
+            return "look and make a move now";
+        } catch (Exception e) {
+            System.out.println(SET_TEXT_COLOR_RED + "Error: Invalid Square. Select Square to Highlight");
+            System.out.print("\u001B[49m");
+            System.out.print("\u001B[39m");
+            return "";
+
+        }
     }
 
     public String helpPostLogin(){

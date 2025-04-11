@@ -56,6 +56,8 @@ public class Repl implements ServerMessageObserver {
             promptState = client.isInGame() ? "IN_GAME" : "LOGGED_IN";
         }
         System.out.print("\n" + "\u001b" + promptState + ">>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\u001B[49m");
+        System.out.print("\u001B[39m");
     }
 
     @Override
