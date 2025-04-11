@@ -149,11 +149,9 @@ public class WebSocketRequestHandler {
                 notificationMessage = new NotificationMessage(opponentUsername + " Is in Check! Protect the King");
                 connectionManager.broadcastString(command.getGameID() ,null, notificationMessage);
             }
-            else{
-                notificationMessage = new NotificationMessage(username + " has moved "
+            notificationMessage = new NotificationMessage(username + " has moved "
                         + chessPiece.getPieceType().toString() + " to: " + endPosition.toString());
-                connectionManager.broadcastString(command.getGameID() ,username, notificationMessage);
-            }
+            connectionManager.broadcastString(command.getGameID() ,username, notificationMessage);
 
             gameService.updateGame(command.getGameID(), updatedGame);
             LoadGameMessage gameMessage = new LoadGameMessage(updatedGame);

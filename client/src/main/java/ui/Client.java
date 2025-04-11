@@ -65,7 +65,7 @@ public class Client{
                     else {
                         yield "Invalid Format. Type 'leave' to leave the current game.";}}
                 case "move" -> {
-                    if (params.length == 2 || params.length == 3){
+                    if (params.length == 2){
                         yield movePiece(params);}
                     else{
                         yield "Invalid Format. Type 'move' with the starting and ending square";}}
@@ -260,10 +260,6 @@ public class Client{
         chess.ChessBoard board = activeGame.game().getBoard();
         String start = params[0];
         String finish = params[1];
-        ChessPiece.PieceType promotionPiece = null;
-        if(params.length == 3){
-            promotionPiece = ChessPiece.PieceType.valueOf(params[2].toUpperCase());
-        }
         int rowStart = getRowFromString(start);
         int colStart = getColFromString(start);
 
@@ -276,11 +272,33 @@ public class Client{
         //Make sure to check if pawn is being promoted or not, and if so, prompt user to
         // specify which promotion piece they want
         ChessPiece myPiece = board.getPiece(startPosition);
+        if (myPiece == null) {
+            return "Select a correct Piece";
+        }
+
         ChessMove newMove;
         String message;
-        if(myPiece.getPieceType().equals(ChessPiece.PieceType.PAWN) && (rowFinish == 1|| rowFinish == 8)){
+        boolean isPawn = myPiece.getPieceType().equals(ChessPiece.PieceType.PAWN);
+        boolean endOfBoard = (rowFinish == 1|| rowFinish == 8);
+        if(isPawn && endOfBoard){
+            System.out.print("Which Piece do you want to promote to (Queen/Rook/Bishop/Knight): ");
+            Scanner scanner = new Scanner(System.in);
+            ChessPiece.PieceType promotionPiece;
+            while(true){
+                String line = scanner.nextLine().trim().toUpperCase();
+                try{
+                    ChessPiece.PieceType pieceType = ChessPiece.PieceType.valueOf(line);
+                    if (pieceType == ChessPiece.PieceType.PAWN ||pieceType == ChessPiece.PieceType.KING) {
+                        throw new IllegalArgumentException();
+                    }
+                    promotionPiece = pieceType;
+                    break;
+                }
+                catch(Exception e){
+                    System.out.print("Invalid Piece. Please Type Queen, Rook, Bishop, Knight: ");
+                }
+            }
             newMove = new ChessMove(startPosition, endPosition, promotionPiece);
-            assert promotionPiece != null;
             message = "Promoting your pawn to " + promotionPiece;
         }
         else{
@@ -299,10 +317,22 @@ public class Client{
 
 
     public String resignGame(String... params) throws ResponseException {
-        //prompt user for
-        //String userAnswer = SCANNER.nextLine().toUpperCase();
-        webSocketFacade.resign(authToken, activeGame.gameID());
-        return "YOU LOST, HAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAH";
+        System.out.print("Are you sure you want to resign? (Y/N): ");
+        Scanner scanner = new Scanner(System.in);
+        while(true){
+            String answer = scanner.nextLine().trim().toUpperCase();
+            if(answer.equals("Y")){
+                webSocketFacade.resign(authToken, activeGame.gameID());
+                return "YOU LOST, HAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAH";
+            }
+            else if(answer.equals("N")){
+                return "Resignation Cancelled, you remain in the game";
+            }
+            else {
+                System.out.print("Invalid input, please type Y or N: ");
+            }
+        }
+
     }
 
     public String highlightMoves(String... params){
@@ -339,7 +369,7 @@ public class Client{
         return """
                 Redraw the current chess board: "redraw"
                 Leave the current game: "leave"
-                Make a move: "move" <Starting Square> <Ending Square> <Promotion Piece if promoting pawn>
+                Make a move: "move" <Starting Square> <Ending Square>
                 Resign but remain in the game: "resign"
                 Highlight possible moves of an individual piece: "highlight" <Square where piece is located>
                 """;
