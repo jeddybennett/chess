@@ -134,36 +134,44 @@ public class Client{
         return inGame;
     }
 
-    public String register(String... params) throws ResponseException {
-        String username = params[0];
-        String password = params[1];
-        String email = params[2];
-        RegisterRequest registerRequest = new RegisterRequest(username, password, email);
-        RegisterResult result = serverFacade.register(registerRequest);
-        LoginRequest loginRequest = new LoginRequest(username, password);
-        LoginResult loginResult = serverFacade.login(loginRequest);
-        authToken = loginResult.authToken();
-        if(result != null && authToken != null){
-            preLogin = false;
-            return "User Registered and Logged in Successfully";
+    public String register(String... params){
+        try {
+            String username = params[0];
+            String password = params[1];
+            String email = params[2];
+            RegisterRequest registerRequest = new RegisterRequest(username, password, email);
+            RegisterResult result = serverFacade.register(registerRequest);
+            LoginRequest loginRequest = new LoginRequest(username, password);
+            LoginResult loginResult = serverFacade.login(loginRequest);
+            authToken = loginResult.authToken();
+            if (result != null && authToken != null) {
+                preLogin = false;
+                return "User Registered and Logged in Successfully";
+            } else {
+                return "User registration invalid";
+            }
         }
-        else{
-            return "User registration invalid";
+        catch(Exception e){
+            return "User Already Taken. Pick a different username.";
         }
     }
 
-    public String login(String... params) throws ResponseException {
-        String username = params[0];
-        String password = params[1];
-        LoginRequest loginRequest = new LoginRequest(username, password);
-        LoginResult loginResult = serverFacade.login(loginRequest);
-        authToken = loginResult.authToken();
-        if(loginResult.authToken() != null){
-            preLogin = false;
-            return "Login Successful";
+    public String login(String... params){
+        try {
+            String username = params[0];
+            String password = params[1];
+            LoginRequest loginRequest = new LoginRequest(username, password);
+            LoginResult loginResult = serverFacade.login(loginRequest);
+            authToken = loginResult.authToken();
+            if (loginResult.authToken() != null) {
+                preLogin = false;
+                return "Login Successful";
+            } else {
+                return "Login failed";
+            }
         }
-        else{
-            return "Login failed";
+        catch(Exception e){
+            return "Login failed: invalid Username or Password.";
         }
     }
 
@@ -174,66 +182,96 @@ public class Client{
         return "Logged out successfully";
     }
 
-    public String createGame(String... params) throws ResponseException {
-        String gameName = params[0];
-        CreateGameRequest createGameRequest = new CreateGameRequest(gameName, authToken);
-        CreateGameResult createGameResult = serverFacade.createGame(createGameRequest);
-        int gameID = createGameResult.gameID();
-        if(gameID > 0){
-            return "Game Created Successfully";
+    public String createGame(String... params){
+        try {
+            String gameName = params[0];
+            CreateGameRequest createGameRequest = new CreateGameRequest(gameName, authToken);
+            CreateGameResult createGameResult = serverFacade.createGame(createGameRequest);
+            int gameID = createGameResult.gameID();
+            if (gameID > 0) {
+                return "Game Created Successfully";
+            } else {
+                return "Game not created";
+            }
         }
-        else{
-            return "Game not created";
+        catch(Exception e){
+            return "Game Creation Failed. Try again";
         }
 
 
     }
 
-    public String listGames(String... params) throws ResponseException {
-        ListGameRequest listGameRequest = new ListGameRequest(authToken);
-        ListGameResult result = serverFacade.listGames(listGameRequest);
-        Collection<GameData>games = result.games();
-        if(games.isEmpty()){
-            return "There are no Games created";
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append("Current Games\n");
-        int i = 1;
-        for(GameData game: games){
-            sb.append(i).append(") ").append(game.gameName()).append("\n");
-            sb.append("    WHITE PLAYER: ").append(game.whiteUsername() != null ? game.whiteUsername() + "\n" : "none\n");
-            sb.append("    BLACK PLAYER: ").append(game.blackUsername() != null ? game.blackUsername() + "\n" : "none\n");
-            gameMap.put(i, game);
-            i++;
-        }
+    public String listGames(String... params){
+        try {
+            ListGameRequest listGameRequest = new ListGameRequest(authToken);
+            ListGameResult result = serverFacade.listGames(listGameRequest);
+            Collection<GameData> games = result.games();
+            if (games.isEmpty()) {
+                return "There are no Games created";
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.append("Current Games\n");
+            int i = 1;
+            for (GameData game : games) {
+                sb.append(i).append(") ").append(game.gameName()).append("\n");
+                sb.append("    WHITE PLAYER: ").append(game.whiteUsername() != null ? game.whiteUsername() + "\n" : "none\n");
+                sb.append("    BLACK PLAYER: ").append(game.blackUsername() != null ? game.blackUsername() + "\n" : "none\n");
+                gameMap.put(i, game);
+                i++;
+            }
 
-        return sb.toString();
+            return sb.toString();
+        }
+        catch(Exception e){
+            return "List Games Failed. Try again";
+        }
     }
 
-    public String playGame(String... params) throws ResponseException {
+    public String playGame(String... params){
         int gameNumber = Integer.parseInt(params[0]);
-        ChessGame.TeamColor color = ChessGame.TeamColor.valueOf(params[1].toUpperCase());
-        GameData gameInfo = gameMap.get(gameNumber);
-        int gameID = gameInfo.gameID();
-        ChessGame newGame = gameInfo.game();
-        chess.ChessBoard board = newGame.getBoard();
-        JoinGameRequest joinGameRequest = new JoinGameRequest(authToken, color, gameID);
-        serverFacade.joinGame(joinGameRequest);
-        webSocketFacade.connect(authToken, gameID);
-        isWhite = !color.equals(ChessGame.TeamColor.BLACK);
-        inGame = true;
-        activeGame = gameInfo;
-        return "Game joined Successfully";
+        try {
+            ChessGame.TeamColor color;
+            try {
+                color = ChessGame.TeamColor.valueOf(params[1].toUpperCase());
+
+            } catch (IllegalArgumentException e) {
+                return params[1].toUpperCase() + " is not a valid color. Select WHITE or BLACK";
+            }
+            GameData gameInfo = gameMap.get(gameNumber);
+            int gameID = gameInfo.gameID();
+            ChessGame newGame = gameInfo.game();
+            chess.ChessBoard board = newGame.getBoard();
+            JoinGameRequest joinGameRequest = new JoinGameRequest(authToken, color, gameID);
+            try {
+                serverFacade.joinGame(joinGameRequest);
+            }
+            catch(ResponseException e){
+                return color + " is already taken";
+            }
+            webSocketFacade.connect(authToken, gameID);
+            isWhite = !color.equals(ChessGame.TeamColor.BLACK);
+            inGame = true;
+            activeGame = gameInfo;
+            return "Game joined Successfully";
+        }
+        catch(Exception e){
+            return "game " + gameNumber + " does not exist. Make sure to list games to be sure.";
+        }
     }
 
-    public String observeGame(String... params) throws ResponseException {
+    public String observeGame(String... params){
         int gameNumber = Integer.parseInt(params[0]);
-        GameData gameInfo = gameMap.get(gameNumber);
-        chess.ChessBoard board = gameInfo.game().getBoard();
-        webSocketFacade.connect(authToken, gameInfo.gameID());
-        inGame = true;
-        isObserve = true;
-        return "Now Observing Game";
+        try {
+            GameData gameInfo = gameMap.get(gameNumber);
+            chess.ChessBoard board = gameInfo.game().getBoard();
+            webSocketFacade.connect(authToken, gameInfo.gameID());
+            inGame = true;
+            isObserve = true;
+            return "Now Observing Game";
+        }
+        catch(Exception e){
+            return "game " + gameNumber + " does not exist. Make sure to list games to be sure.";
+        }
     }
 
     public static String redrawGame(){
@@ -257,58 +295,61 @@ public class Client{
     }
 
     public String movePiece(String... params) throws InvalidMoveException, ResponseException {
-        chess.ChessBoard board = activeGame.game().getBoard();
-        String start = params[0];
-        String finish = params[1];
-        int rowStart = getRowFromString(start);
-        int colStart = getColFromString(start);
+        try {
+            chess.ChessBoard board = activeGame.game().getBoard();
+            String start = params[0];
+            String finish = params[1];
+            int rowStart = getRowFromString(start);
+            int colStart = getColFromString(start);
 
-        int rowFinish = getRowFromString(finish);
-        int colFinish = getColFromString(finish);
+            int rowFinish = getRowFromString(finish);
+            int colFinish = getColFromString(finish);
 
-        ChessPosition startPosition = new ChessPosition(rowStart, colStart);
-        ChessPosition endPosition = new ChessPosition(rowFinish, colFinish);
+            ChessPosition startPosition = new ChessPosition(rowStart, colStart);
+            ChessPosition endPosition = new ChessPosition(rowFinish, colFinish);
 
-        //Make sure to check if pawn is being promoted or not, and if so, prompt user to
-        // specify which promotion piece they want
-        ChessPiece myPiece = board.getPiece(startPosition);
-        if (myPiece == null) {
-            return "Select a correct Piece";
-        }
-
-        ChessMove newMove;
-        String message;
-        boolean isPawn = myPiece.getPieceType().equals(ChessPiece.PieceType.PAWN);
-        boolean endOfBoard = (rowFinish == 1|| rowFinish == 8);
-        if(isPawn && endOfBoard){
-            System.out.print("Which Piece do you want to promote to (Queen/Rook/Bishop/Knight): ");
-            Scanner scanner = new Scanner(System.in);
-            ChessPiece.PieceType promotionPiece;
-            while(true){
-                String line = scanner.nextLine().trim().toUpperCase();
-                try{
-                    ChessPiece.PieceType pieceType = ChessPiece.PieceType.valueOf(line);
-                    if (pieceType == ChessPiece.PieceType.PAWN ||pieceType == ChessPiece.PieceType.KING) {
-                        throw new IllegalArgumentException();
-                    }
-                    promotionPiece = pieceType;
-                    break;
-                }
-                catch(Exception e){
-                    System.out.print("Invalid Piece. Please Type Queen, Rook, Bishop, Knight: ");
-                }
+            //Make sure to check if pawn is being promoted or not, and if so, prompt user to
+            // specify which promotion piece they want
+            ChessPiece myPiece = board.getPiece(startPosition);
+            if (myPiece == null) {
+                return "There is not piece at selected starting Position. Choose another Position.";
             }
-            newMove = new ChessMove(startPosition, endPosition, promotionPiece);
-            message = "Promoting your pawn to " + promotionPiece;
-        }
-        else{
-            newMove = new ChessMove(startPosition, endPosition, null);
-            message = "move made successfully";
-        }
-        activeGame.game().makeMove(newMove);
-        webSocketFacade.makeMove(authToken, activeGame.gameID(), newMove);
 
-        return message;
+            ChessMove newMove;
+            String message;
+            boolean isPawn = myPiece.getPieceType().equals(ChessPiece.PieceType.PAWN);
+            boolean endOfBoard = (rowFinish == 1 || rowFinish == 8);
+            if (isPawn && endOfBoard) {
+                System.out.print("Which Piece do you want to promote to (Queen/Rook/Bishop/Knight): ");
+                Scanner scanner = new Scanner(System.in);
+                ChessPiece.PieceType promotionPiece;
+                while (true) {
+                    String line = scanner.nextLine().trim().toUpperCase();
+                    try {
+                        ChessPiece.PieceType pieceType = ChessPiece.PieceType.valueOf(line);
+                        if (pieceType == ChessPiece.PieceType.PAWN || pieceType == ChessPiece.PieceType.KING) {
+                            throw new IllegalArgumentException();
+                        }
+                        promotionPiece = pieceType;
+                        break;
+                    } catch (Exception e) {
+                        System.out.print("Invalid Piece. Please Type Queen, Rook, Bishop, Knight: ");
+                    }
+                }
+                newMove = new ChessMove(startPosition, endPosition, promotionPiece);
+                message = "Promoting your pawn to " + promotionPiece;
+            } else {
+                newMove = new ChessMove(startPosition, endPosition, null);
+                message = "move made successfully";
+            }
+            activeGame.game().makeMove(newMove);
+            webSocketFacade.makeMove(authToken, activeGame.gameID(), newMove);
+
+            return message;
+        }
+        catch(Exception e){
+            return "Invalid Move. Please type <starting square> <ending square>";
+        }
     }
 
     public static void updateGame(GameData game) {
