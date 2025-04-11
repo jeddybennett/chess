@@ -97,6 +97,10 @@ public class WebSocketRequestHandler {
 
     private void makeMove(Session session, String username, MakeMoveCommand command) {
         try {
+            if (didResign) {
+                sendMessage(session, "Error: no more moves can be made after a resignation");
+                return;
+            }
             GameData gameData = gameService.getGame(command.getGameID());
             ChessMove chessMove = command.getMove();
             ChessGame chessGame = gameData.game();
@@ -110,19 +114,12 @@ public class WebSocketRequestHandler {
                 playerColor = ChessGame.TeamColor.BLACK;
                 opponentUsername = gameData.whiteUsername();
             }
-
             if (!correctTurn.equals(playerColor)) {
                 sendMessage(session, "Error: not your turn");
                 return;
             }
-
             ChessGame.TeamColor opponentColor = (correctTurn == ChessGame.TeamColor.WHITE)
                     ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
-
-            if (didResign) {
-                sendMessage(session, "Error: no more moves can be made after a resignation");
-                return;
-            }
             ChessPosition startPosition = chessMove.getStartPosition();
             ChessPosition endPosition = chessMove.getEndPosition();
             ChessBoard chessBoard = chessGame.getBoard();
@@ -172,12 +169,13 @@ public class WebSocketRequestHandler {
             if(username.equals(currentGame.whiteUsername())){
                 updatedGame = new GameData(currentGame.gameID(), null, currentGame.blackUsername(),
                         currentGame.gameName(), currentGame.game());
+                gameService.updateGame(command.getGameID(), updatedGame);
             }
-            else{
+            else if(username.equals(currentGame.blackUsername())){
                 updatedGame = new GameData(currentGame.gameID(), currentGame.whiteUsername(), null,
                         currentGame.gameName(), currentGame.game());
+                gameService.updateGame(command.getGameID(), updatedGame);
             }
-            gameService.updateGame(command.getGameID(), updatedGame);
             connectionManager.broadcastString(command.getGameID(),username, notificationMessage);
         } catch (Exception e) {
             sendMessage(session, "Error: " + e.getMessage());
