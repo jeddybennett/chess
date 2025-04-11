@@ -78,9 +78,9 @@ public class WebSocketRequestHandler {
             connectionManager.add(username, session, command.getGameID());
             GameData gameData = gameService.getGame(command.getGameID());
             String message;
-            if (gameData.whiteUsername().equals(username)) {
+            if (username.equals(gameData.whiteUsername())) {
                 message = username + " " + "has joined as WHITE";
-            } else if (gameData.blackUsername().equals(username)) {
+            } else if (username.equals(gameData.blackUsername())) {
                 message = username + " " + "has joined as BLACK";
             } else {
                 message = username + " " + "is observing the game";
@@ -102,17 +102,23 @@ public class WebSocketRequestHandler {
             ChessGame chessGame = gameData.game();
             ChessGame.TeamColor correctTurn = chessGame.getTeamTurn();
             ChessGame.TeamColor playerColor = null;
+            String opponentUsername = null;
             if(username.equals(gameData.whiteUsername())){
                 playerColor = ChessGame.TeamColor.WHITE;
+                opponentUsername = gameData.blackUsername();
             }
             else if(username.equals(gameData.blackUsername())){
                 playerColor = ChessGame.TeamColor.BLACK;
+                opponentUsername = gameData.whiteUsername();
             }
 
             if(!correctTurn.equals(playerColor)){
                 sendMessage(session, "Error: not your turn");
                 return;
             }
+
+            ChessGame.TeamColor opponentColor = (correctTurn == ChessGame.TeamColor.WHITE)
+                    ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
 
             if(didResign){
                 sendMessage(session, "Error: no more moves can be made after a resignation");
@@ -126,18 +132,32 @@ public class WebSocketRequestHandler {
             chessGame.makeMove(chessMove);
             GameData updatedGame = new GameData(gameData.gameID(),
                     gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), chessGame);
+
+            boolean inCheckmate = chessGame.isInCheckmate(opponentColor);
+            boolean inStalemate = chessGame.isInStalemate(opponentColor);
+            boolean inCheck = chessGame.isInCheck(opponentColor);
+            NotificationMessage notificationMessage;
+            if(inCheckmate){
+                notificationMessage = new NotificationMessage(username + " is in Checkmate. THEY LOSE!!!");
+                connectionManager.broadcastString(command.getGameID() ,null, notificationMessage);
+            }
+            else if(inStalemate){
+                notificationMessage = new NotificationMessage("Stalemate. It's a draw");
+                connectionManager.broadcastString(command.getGameID() ,null, notificationMessage);
+            }
+            else if(inCheck){
+                notificationMessage = new NotificationMessage(opponentUsername + " Is in Check! Protect the King");
+                connectionManager.broadcastString(command.getGameID() ,null, notificationMessage);
+            }
+            else{
+                notificationMessage = new NotificationMessage(username + " has moved "
+                        + chessPiece.getPieceType().toString() + " to: " + endPosition.toString());
+                connectionManager.broadcastString(command.getGameID() ,username, notificationMessage);
+            }
+
             gameService.updateGame(command.getGameID(), updatedGame);
-
-            NotificationMessage notificationMessage = new NotificationMessage(username + " has moved "
-                    + chessPiece.getPieceType().toString() + " to: " + endPosition.toString());
-
-            
-            connectionManager.broadcastString(command.getGameID() ,username, notificationMessage);
-
             LoadGameMessage gameMessage = new LoadGameMessage(updatedGame);
             connectionManager.broadcastGame(command.getGameID(),gameMessage);
-
-
         } catch (Exception e) {
             sendMessage(session, "Error: " + e.getMessage());
         }

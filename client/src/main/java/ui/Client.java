@@ -13,6 +13,7 @@ public class Client{
 
     private static boolean preLogin = true;
     private static boolean inGame = false;
+    private static boolean isObserve = false;
     private final ServerFacade serverFacade;
     private String authToken;
     private static GameData activeGame;
@@ -230,17 +231,27 @@ public class Client{
         GameData gameInfo = gameMap.get(gameNumber);
         chess.ChessBoard board = gameInfo.game().getBoard();
         webSocketFacade.connect(authToken, gameInfo.gameID());
+        inGame = true;
+        isObserve = true;
         return "Now Observing Game";
     }
 
     public static String redrawGame(){
         chess.ChessBoard chessBoard = activeGame.game().getBoard();
-        ChessBoard.drawBoard(chessBoard, isWhite);
+        if(isObserve){
+            ChessBoard.drawBoard(chessBoard, true);
+        }
+        else{
+            ChessBoard.drawBoard(chessBoard, isWhite);
+        }
         return "board has been redrawn";
     }
 
     public String leaveGame(String... params) throws ResponseException {
         inGame = false;
+        if(isObserve){
+            isObserve = false;
+        }
         webSocketFacade.leave(authToken, activeGame.gameID());
         return "don't leave me";
     }
