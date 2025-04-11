@@ -296,7 +296,7 @@ public class Client{
         return "don't leave me";
     }
 
-    public String movePiece(String... params) throws InvalidMoveException, ResponseException {
+    public String movePiece(String... params) throws ResponseException {
         try {
             chess.ChessBoard board = activeGame.game().getBoard();
             String start = params[0];
@@ -313,12 +313,23 @@ public class Client{
             //Make sure to check if pawn is being promoted or not, and if so, prompt user to
             // specify which promotion piece they want
             ChessPiece myPiece = board.getPiece(startPosition);
+
+            ChessGame.TeamColor playerColor = isWhite ? ChessGame.TeamColor.WHITE: ChessGame.TeamColor.BLACK;
+            if(activeGame.game().getTeamTurn() != playerColor){
+                webSocketFacade.makeMove(authToken, activeGame.gameID(), null);
+                return "";
+            }
+
             if (isObserve) {
                 webSocketFacade.makeMove(authToken, activeGame.gameID(), null);
                 return "";
             }
             if (myPiece == null) {
-                return "There is not piece at selected starting Position. Choose another Position.";
+                System.out.println(SET_TEXT_COLOR_RED + "Error: There is not piece at the selected starting Position. " +
+                        "Choose another Position.");
+                System.out.print("\u001B[49m");
+                System.out.print("\u001B[39m");
+                return "";
             }
 
             ChessMove newMove;
@@ -326,37 +337,20 @@ public class Client{
             boolean isPawn = myPiece.getPieceType().equals(ChessPiece.PieceType.PAWN);
             boolean endOfBoard = (rowFinish == 1 || rowFinish == 8);
 
-
             if (isPawn && endOfBoard) {
                 ChessMove possibleMove = new ChessMove(startPosition, endPosition, ChessPiece.PieceType.QUEEN);
                 if(!activeGame.game().validMoves(startPosition).contains(possibleMove)){
                     webSocketFacade.makeMove(authToken, activeGame.gameID(), null);
                     return "";
                 }
-                ChessGame.TeamColor playerColor = isWhite ? ChessGame.TeamColor.WHITE: ChessGame.TeamColor.BLACK;
-                if(activeGame.game().getTeamTurn() != playerColor){
-                    webSocketFacade.makeMove(authToken, activeGame.gameID(), null);
-                    return "";
-                }
                 System.out.print("Which Piece do you want to promote to (Queen/Rook/Bishop/Knight): ");
                 Scanner scanner = new Scanner(System.in);
-                ChessPiece.PieceType promotionPiece;
-                while (true) {
-                    String line = scanner.nextLine().trim().toUpperCase();
-                    try {
-                        ChessPiece.PieceType pieceType = ChessPiece.PieceType.valueOf(line);
-                        if (pieceType == ChessPiece.PieceType.PAWN || pieceType == ChessPiece.PieceType.KING) {
-                            throw new IllegalArgumentException();
-                        }
-                        promotionPiece = pieceType;
-                        break;
-                    } catch (Exception e) {
-                        System.out.print("Invalid Piece. Please Type Queen, Rook, Bishop, Knight: ");
-                    }
-                }
+                ChessPiece.PieceType promotionPiece = null;
+                promotionPiece = pawnPromotion(scanner, promotionPiece);
                 newMove = new ChessMove(startPosition, endPosition, promotionPiece);
                 message = "Promoting your pawn to " + promotionPiece;
-            } else {
+            }
+            else {
                 newMove = new ChessMove(startPosition, endPosition, null);
                 message = "move made successfully";
             }
@@ -373,6 +367,23 @@ public class Client{
 
     public static void updateGame(GameData game) {
         activeGame = game;
+    }
+
+    public static ChessPiece.PieceType pawnPromotion(Scanner scanner, ChessPiece.PieceType promotionPiece){
+        while (true) {
+            String line = scanner.nextLine().trim().toUpperCase();
+            try {
+                ChessPiece.PieceType pieceType = ChessPiece.PieceType.valueOf(line);
+                if (pieceType == ChessPiece.PieceType.PAWN || pieceType == ChessPiece.PieceType.KING) {
+                    throw new IllegalArgumentException();
+                }
+                promotionPiece = pieceType;
+                break;
+            } catch (Exception e) {
+                System.out.print("Invalid Piece. Please Type Queen, Rook, Bishop, Knight: ");
+            }
+        }
+        return promotionPiece;
     }
 
 
